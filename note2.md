@@ -40,7 +40,7 @@
 从识别符号开始，把当前产生的符号串中的非终结符号替换为相应产生式右部的符号串，直到最终全由终结符号组成。这种替换过程称为推导或产生句子的过程，每一步称为**直接推导**或**直接产生**
 
 ### 直接推导/规约
-如果$A \rightarrow \gamma$是一个产生式，而$\alpha$、$\beta$ $\in (V_T \cup V_N)*$，则将产生式$A \rightarrow \gamma$用于符号串$\alpha A \beta$得到的符号串$\alpha \gamma \beta$，记为$\alpha A \beta \Rightarrow \alpha \gamma \beta$，称为直接推导
+如果$A \rightarrow \gamma$是一个产生式，而$\alpha$、$\beta$ $\in (V_T \cup V_N)^*$，则将产生式$A \rightarrow \gamma$用于符号串$\alpha A \beta$得到的符号串$\alpha \gamma \beta$，记为$\alpha A \beta \Rightarrow \alpha \gamma \beta$，称为直接推导
 
 而其逆过程即为直接规约
 
@@ -113,3 +113,67 @@ $S \Rightarrow AB \Rightarrow aAB \Rightarrow aaB \Rightarrow aab$
 
 # 语法树
 ![](./ref/note2-1.png)
+
+# 二义性
+## 有歧义
+$E \rightarrow E * E$
+$E \rightarrow E + E$
+$E \rightarrow i$
+
+随便找一个反例$i + i * i$
+有两种语法树，优先级就不能确定
+```mermaid
+graph TB
+  a[E] --- b[E]
+  a --- c[+]
+  a --- d[E]
+
+  b --- e[i]
+
+  d --- f[E]
+  d --- g[*]
+  d --- h[E]
+
+  f --- i[i]
+  h --- j[i]
+```
+```mermaid
+graph TB
+  a[E] --- b[E]
+  a --- c[*]
+  a --- d[E]
+
+  b --- f[E]
+  b --- g[+]
+  b --- h[E]
+
+  f --- i[i]
+  h --- j[i]
+  
+  d --- k[i]
+```
+## 没有歧义
+$E \rightarrow E + T$
+$E \rightarrow T$
+$T \rightarrow T * F$
+$T \rightarrow F$
+$F \rightarrow i$
+
+```mermaid
+graph TB
+  a[E] --- b[E]
+  a[E] --- c[+]
+  a[E] --- d[T]
+  
+  b --- e[T]
+  e --- f[F]
+  f --- g[i]
+
+  d --- h[T]
+  d --- i[*]
+  d --- j[F]
+
+  h --- k[F]
+  k --- l[i]
+  j --- m[i]
+```
