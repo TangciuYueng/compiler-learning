@@ -1,4 +1,4 @@
-## 画出状态转换图
+## 画出NFA
 ```mermaid
 graph LR
     S((S)) -->|0,1| S
@@ -10,9 +10,54 @@ graph LR
     B -->|0| F(((F)))
     C -->|0,1| F
 ```
+## 子集构造法DFA
+### 状态转换矩阵
+|$I$|$I_0$|$I_1$|
+|:--:|:--:|:--:|
+|$\{S\}$|$\{S, B\}$|$\{S, A\}$|
+|$\{S, B\}$|$\{S, B, C, F\}$|$\{S, A\}$|
+|$\{S, A\}$|$\{S, B\}$|$\{S, A, C, F\}$|
+|$\{S, B, C, F\}$|$\{S, B ,C, F\}$|$\{S, A, F\}$|
+|$\{S, A, C, F\}$|$\{S, B, F\}$|$\{S, A, C, F\}$|
+|$\{S, A, F\}$|$\{S, B\}$|$\{S, A, C, F\}$|
+|$\{S, B, F\}$|$\{S, B, C, F\}$|$\{S, A\}$|
+
+### 重新编号
+|$I$|$I_0$|$I_1$|
+|:--:|:--:|:--:|
+|$A$|$B$|$C$|
+|$B$|$D$|$C$|
+|$C$|$B$|$E$|
+|$D$|$D$|$F$|
+|$E$|$G$|$E$|
+|$F$|$B$|$E$|
+|$G$|$D$|$C$|
+
+### DFA
+```mermaid
+graph LR
+    A((A)) -->|0| B((B))
+    A((A)) -->|1| C((C))
+    B((B)) -->|0| D(((D)))
+    B((B)) -->|1| C((C))
+    C((C)) -->|0| B((B))
+    C((C)) -->|1| E(((E)))
+    D -->|0| D
+    D -->|1| F(((F)))
+    E -->|0| G(((G)))
+    E -->|1| E
+    F -->|0| B
+    F -->|1| E
+    G -->|0| D
+    G -->|1| C
+
+
+```
+
 ## 得到左线性正规式
-$$F \rightarrow A1|B0|C0|C1$$
-$$C \rightarrow A1|B0$$
-$$A \rightarrow S1$$
-$$B \rightarrow S0$$
-$$S \rightarrow S0|S1$$
+$$F \rightarrow D1$$
+$$G \rightarrow E0$$
+$$D \rightarrow B0|D0|G0$$
+$$E \rightarrow C1|E1|F1$$
+$$B \rightarrow A0|C0|F0$$
+$$C \rightarrow A1|B1|G1$$

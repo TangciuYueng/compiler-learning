@@ -165,7 +165,7 @@ $M=(S, \Sigma, \delta, S_0, F)$
 - 设一个NFA接受语言L，那么存在一个DFA接受L。
 - 证明策略:对于任意一个NFA，构造一个接收它所能接收语言的DFA，这个DFA的状态对应了NFA的状态集合
 
-## 转换
+## NFA和正规式的转换
 ### NFA到正规式
 状态消去法
 ![](./ref/note3-1.png)
@@ -311,3 +311,89 @@ $\{C\}_b \subseteq \{A, C\}$
 
 the answer is 
 $\{A, C\} \{E\} \{D\} \{B\}$
+
+## 正规文法和自动机的转换
+### 右线性正规文法产生NFA
+eg. 
+$A \rightarrow 0|0B|1D$
+$B \rightarrow 0D|1C$
+$C \rightarrow 0|0B|1D$
+$D \rightarrow 0D|1D$
+
+直接终结符当作条件，右边的当作下一个状态
+**注意，遇到终态的时候需要添加新的字母**
+```mermaid
+graph LR
+  A((A)) -->|0| B((B))
+  A((A)) -->|0| f((f))
+  A((A)) -->|1| D((D))
+
+  B -->|0| D
+  B -->|1| C((C))
+
+  C -->|0| B
+  C -->|1| D
+  C -->|0| f
+
+  D -->|0,1| D
+```
+
+### 左线性正规文法产生NFA
+**从终态开始，逆着箭头往前，初态没有了需要添加**
+**注意终态双圈**
+eg.
+$A \rightarrow l|Al|Ad$
+
+```mermaid
+graph
+  A(((A))) -->|l,d| A
+  X((X)) -->|l| A
+```
+### 有穷自动机到右线性文法
+
+- 终态一般不用写，除非**终态有出度**
+- 指向终态的**有两种结果**
+
+```mermaid
+graph LR
+  D((D)) -->|b| E(((E)))
+  E -->|a| D
+```
+这时候，就要
+$D \rightarrow bE|b$
+$E \rightarrow aD$
+
+```mermaid
+graph LR
+  A(((A))) -->|a| B(((B)))
+```
+初态又是终态说明可以接收空字
+$A \rightarrow aB|a$
+$A^{'} \rightarrow \epsilon|A$
+这里不用写终态的，但是保险起见反正写了也没用
+
+```mermaid
+graph LR
+  S((S)) -->|a,b| A(((A)))
+  A -->|a,b,0,1| A
+```
+$S \rightarrow aA|a|bA|b$
+$A \rightarrow aA|a|bA|b|0A|0|1A|1$
+### 有穷自动机到左线性文法
+初态一般不用写，除非有入度
+
+```mermaid
+graph LR
+  A((A)) -->|l| B(((B)))
+  B -->|l, d| B
+```
+$B \rightarrow Bl|Bd|l$
+
+## LEX程序
+LEX程序由一组正规式以及与每个正规式相应的动作组成
+
+匹配最长子串(最长匹配原则)到了终态先别停一直往前走
+多个最长匹配子串$P_i$以写在前面的$P_i$为准(优先匹配原则)
+
+![](./ref/note3-6.png)
+增加一个新的初态，使得可以识别多个
