@@ -1,9 +1,10 @@
+[TOC]
 # 程序语言的语法描述
 ## 概念
-- 空字$\epsilon$
+- 空字$\varepsilon$
 - 有穷字母表$\Sigma$
 - $V$自身的n次连接$V^n = VV...V$一共n个$V$
-- 规定$V^0 = $ {$\epsilon$}
+- 规定$V^0 = $ {$\varepsilon$}
 
 ## 定义
 编译原理 = 形式语言理论 + 编译技术
@@ -24,16 +25,16 @@
   - 一般小写字母或0-9或运算符号，**推不出其他东西**
 - $S$开始符号且$S \in V_N$(非终结符)，第一个产生式中出现
 - $\pounds$形式为$P \rightarrow \alpha$的产生式的*有限集合*
-  - $P \in (V_N \cup V_T)^*V_N(V_N \cup V_T)^*$(即在左边的至少有一个非终结符)
+  - $P \in (V_N \cup V_T)^*V_N(V_N \cup V_T)^*$(即在左边的**至少有一个非终结符**)
   - $\alpha \in (V_N \cup V_T)^*$
   - 若干个左边相同的可以合并右边用`|`分割：$P \rightarrow \alpha_1 | \alpha_2 |...|\alpha_n $，每个$\alpha_n$成为$P$的一个*候选式*
 
 ### 简化表示
 - 只写出产生式部分
-- 约定第一个产生式的左部符号为初始符号或在产生式前写上“G[A]”，其中G为文法名，A为初始符号
+- 约定第一个产生式的左部符号为初始符号或在产生式前写上$G[A]$，其中$G$为文法名，**$A$为初始符号**
 - 示例
-  - 文法G[N]: N→0N, N→1N, N→0, N→1
-  - 文法G[E]: E→E+E│E*E│(E)│i
+  - 文法$G[N]$: $N \rightarrow 0N, N \rightarrow 1N, N \rightarrow 0, N \rightarrow 1$
+  - 文法$G[E]$: $E \rightarrow E+E│E*E│(E)│i$
   
 ## 从文法到句子到语言
 ### 基本思想
@@ -51,23 +52,23 @@
 - 若在归约过程中，每次最先归约最左（右）的**非终结符**，则称为**最左（右）归约**
 
 ### 分类
-文法G[E]: E→E+E│E*E│(E)│i
+文法$G[E]: E \rightarrow E+E│E*E│(E)│i$
 
-- 句型：假定G是一个文法，E是它的开始符号，如果$E \Rightarrow^* \alpha$，则称$\alpha$是文法G的一个句型
-  - (E+E),(i+E),(i+i),E都是G[E]的句型
-- 句子：**仅由终结符**组成句型成为句子
-  - (i*i+i),(i+i)都是G[E]的句子
-- 语言：文法G所产生的句子的全体
+- 句型：假定$G$是一个文法，$E$是它的开始符号，如果$E \Rightarrow^* \alpha$，则称$\alpha$是文法$G$的一个句型(**开始符号能推导出来的都是句型**)
+  - $(E+E),(i+E),(i+i)$,$E$都是$G[E]$的句型
+- 句子：**仅由终结符**组成**句型**成为句子
+  - $(i*i+i),(i+i)$都是$G[E]$的句子
+- 语言：文法$G$所产生的句子的全体
   - $L(G) = \{\alpha | S \Rightarrow^+ \alpha, \alpha \in V_T^*\}$
 
 ### 推导举例
-G1[S]: S →bA , A→aA | a
+$G1[S]: S \rightarrow bA , A \rightarrow aA | a$
 $S \Rightarrow bA \Rightarrow ba$
 $S \Rightarrow baA \Rightarrow baa$
 $S \Rightarrow baA \Rightarrow baaA \Rightarrow baaa$
 所以$L(G1)=\{ba^n|n>=1\}$
 
-设文法G2[S] ：S→ AB, A →aA|a, B →bB|b
+设文法$G2[S] ：S \rightarrow AB, A \rightarrow aA|a, B \rightarrow bB|b$
 $S \Rightarrow AB \Rightarrow ab$
 $S \Rightarrow AB \Rightarrow aAB \Rightarrow aaB \Rightarrow aab$
 所以$L(G2)=\{a^mb^n|m,n>=1\}$
@@ -105,8 +106,8 @@ $S \Rightarrow AB \Rightarrow aAB \Rightarrow aaB \Rightarrow aab$
 ## 3型文法
 - 正规文法
 - 右线性文法(Right-linear Grammer)
-  - $A \rightarrow \omega B$or$A -> \omega$，其中$A、B \in V_N$，$\omega \in V_T^*$
-  - $A \rightarrow B \omega$or$A -> \omega$，其中$A、B \in V_N$，$\omega \in V_T^*$
+  - $A \rightarrow \omega B$ or $A -> \omega$，其中$A、B \in V_N$，$\omega \in V_T^*$
+  - $A \rightarrow B \omega$ or $A -> \omega$，其中$A、B \in V_N$，$\omega \in V_T^*$
   - 正规式
   - 正规语言
   - 有限自动机

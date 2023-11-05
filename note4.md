@@ -1,3 +1,4 @@
+[TOC]
 # 语法分析——自上而下
 - 从文法的开始符号出发，反复使用各种产生式，寻找与输入符号匹配的最左推导
 - 从⽂法的开始符号出发，向下推导，推出句⼦
@@ -8,7 +9,7 @@
 - 虚假匹配问题
 - 回溯引起时间空间大量消耗
 - 不成功的时候不知道出错的确切位置
-- 
+ 
 ## 分类
 ### LL(1)分析法
 从左(Left)到右扫描输入串，构造最左(Leftmost)推导，分析时每步向前看⼀个(1)字符
@@ -352,6 +353,7 @@ else 那里判断是否为其后继符，指针不后移直接RETURN
 栈存放分析过程的文法符号
 分析开始时候先PUSH一个$\#$，再PUSH文法开始符
 当分析栈中只剩下$\#$，且输入串指针指向串尾的$\#$时，分析成功
+栈里面的就是还没有匹配的句型
 #### 总控程序
 根据栈顶符号$x$和当前输入符号$a$，查表决定分析器的动作
 - 若$x = a = '\#'$，栈顶和输入符号都是$\#$结束！分析成功！
@@ -372,11 +374,11 @@ LL(1)分析表
 
 ||$i$|$+$|$*$|$($|$)$|$\#$|
 |:--:|:--:|:--:|:--:|:--:|:--:|:--:|
-|$E$|$E \rightarrow TE^{'}$|||$E \rightarrow TE^{'}$|||
-|$E^{'}$||$E^{'} \rightarrow +TE^{'}$|||$E^{'} \rightarrow \epsilon$|$E^{'} \rightarrow \epsilon$|
-|$T$|$T \rightarrow FT^{'}$|||$T \rightarrow FT^{'}$|||
-|$T^{'}$||$T^{'} \rightarrow \epsilon$|$T^{'} \rightarrow *FT^{'}$||$T^{'} \rightarrow \epsilon$|$T^{'} \rightarrow \epsilon$|
-|$F$|$F \rightarrow i$|||$F \rightarrow (E)$|||
+|$E$|$E \rightarrow TE^{'}$|&nbsp;|&nbsp;|$E \rightarrow TE^{'}$|&nbsp;|&nbsp;|
+|$E^{'}$|&nbsp;|$E^{'} \rightarrow +TE^{'}$|&nbsp;|&nbsp;|$E^{'} \rightarrow \epsilon$|$E^{'} \rightarrow \epsilon$|
+|$T$|$T \rightarrow FT^{'}$|&nbsp;|&nbsp;|$T \rightarrow FT^{'}$|&nbsp;|&nbsp;|
+|$T^{'}$|&nbsp;|$T^{'} \rightarrow \epsilon$|$T^{'} \rightarrow *FT^{'}$|&nbsp;|$T^{'} \rightarrow \epsilon$|$T^{'} \rightarrow \epsilon$|
+|$F$|$F \rightarrow i$|&nbsp;|&nbsp;|$F \rightarrow (E)$|&nbsp;|&nbsp;|
 
 这张表怎么来的呢
 先求出所有的$FIRST$和$FOLLOW$
