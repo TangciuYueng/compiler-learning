@@ -106,8 +106,11 @@ $S \Rightarrow AB \Rightarrow aAB \Rightarrow aaB \Rightarrow aab$
 ## 3型文法
 - 正规文法
 - 右线性文法(Right-linear Grammer)
-  - $A \rightarrow \omega B$ or $A -> \omega$，其中$A、B \in V_N$，$\omega \in V_T^*$
-  - $A \rightarrow B \omega$ or $A -> \omega$，其中$A、B \in V_N$，$\omega \in V_T^*$
+  - $A \rightarrow \omega B$ or $A \rightarrow \omega$，其中$A、B \in V_N$，$\omega \in V_T^*$
+  - $A \rightarrow B \omega$ or $A \rightarrow \omega$，其中$A、B \in V_N$，$\omega \in V_T^*$
+  - $A \rightarrow 01S$
+  - $A \rightarrow S$
+  - 0或1个非终结符，和一坨连在一起的终结符
   - 正规式
   - 正规语言
   - 有限自动机

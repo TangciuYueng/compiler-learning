@@ -2,7 +2,7 @@
 # 语法分析——自上而下
 - 从文法的开始符号出发，反复使用各种产生式，寻找与输入符号匹配的最左推导
 - 从⽂法的开始符号出发，向下推导，推出句⼦
-- 对任何的输入串(单词符号)，试图⽤**⼀切可能的办法**, 从⽂法的开始符号出发，⾃上⽽下地为输入串建⽴⼀棵语法树，即为输入串寻找⼀个最左推导，本质上是一个个试探，效率低代价高
+- 对任何的输入串(单词符号)，试图用**一切可能的办法**, 从文法的开始符号出发，自上而下地为输入串建立⼀棵语法树，即为输入串寻找⼀个最左推导，本质上是一个个试探，效率低代价高
 
 ## 问题
 - 如果含有**左递归**就会无限循环(因为最左推导)
@@ -241,6 +241,8 @@ $FOLLOW(F) = \{*, +, \#, )\}$，加入$FOLLOW(F^{'})$和$FIRST(T^{'})$
       THEN RETURN
     ELSE ERROR
     ```
+    **注意$FIRST$里面的是右边每个候选式**
+    **$FOLLOW$里面的是左部**
 - 对于符号串$\alpha = Y_1Y_2...Y_m$相应的子程序$P(\alpha)$为:
     ```
     BEGIN
@@ -277,9 +279,8 @@ ELSE ERROR
 ```
 //P(E')
 IF ch IN FIRST(+TE') THEN
-  IF ch = '+' THEN
-    read(ch)
-  ELSE ERROR
+  read(ch)  // 可以直接read了因为上面判断过
+            // 但是如果之后还有终结符就需要用if-else判断了
   P(T)
   P(E')
 ELSE IF \epsilon IN FIRST(E') AND ch IN FOLLOW(E') THEN
@@ -312,7 +313,7 @@ ELSE ERROR
 
 ```
 // P(F)
-ELSE IF ch IN FIRST((E)) THEN
+IF ch IN FIRST((E)) THEN
   IF ch = '(' THEN 
     read(ch)
   ELSE ERROR
