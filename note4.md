@@ -267,6 +267,7 @@ $T \rightarrow FT^{'}$
 $T^{'} \rightarrow *FT^{'} | \epsilon$
 $F \rightarrow (E)|i$
 
+实际写的时候就`IF ch IN {i} THEN`，用集合代替这个$FIRST(...)$
 ```
 // P(E)
 IF ch IN FIRST(TE') THEN
