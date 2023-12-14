@@ -395,7 +395,7 @@ namespace grammar {
 
 		cout << endl;
 
-		for (int i = 0; i < this->tableLR1.size(); i++) {
+		for (size_t i = 0; i < this->tableLR1.size(); i++) {
 			DFAState state;
 			this->transList.getVertex(state, i);
 			cout << setw(4) << setfill(' ') << setiosflags(ios::left) << state.num;
@@ -458,7 +458,7 @@ namespace grammar {
 
 		out << endl;
 
-		for (int i = 0; i < this->tableLR1.size(); i++) {
+		for (size_t i = 0; i < this->tableLR1.size(); i++) {
 			out << i << ',';
 
 			for (string terminal : terminals) {
