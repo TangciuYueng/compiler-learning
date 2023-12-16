@@ -10,14 +10,10 @@ public class PL0Main {
     public static void main(String[] args) {
         PL0Lexer lexer = new PL0Lexer(CharStreams.fromString(
                 "PROGRAM xxx" +
-                        "CONST set:=23;" +
-                "VAR a,b,c;" +
+                        "VAR set;" +
                         "BEGIN" +
-                        "   a := 23*1 * 5;" +
-                        "   b := set;" +
-                        "   IF y > 0 THEN y:=-y*3;" +
-                        "WHILE x < 2 DO x:=(x+1)/3;" +
-                        "a := y+2" +
+                        "   set := 1;" +
+                        "   a := (23+1) * set;" +
                         "END;"
                         ));
         PL0Parser parser = new PL0Parser(new CommonTokenStream(lexer));

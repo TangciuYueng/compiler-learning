@@ -2,17 +2,21 @@ package cn.edu.tongji.PL0;
 
 public class PL0VisitorImpl extends PL0BaseVisitor<String> {
     private int tempVarCounter = 0;
+    private int midCodeCounter = 100;
     private String newTempVar() {
         return "t" + tempVarCounter++;
     }
+    private String getCounterFormat() {
+        return midCodeCounter++ + ": ";
+    }
     // +|- 运算 控制 条件
-//    @Override
-//    public String visitAssignmentStatement(PL0Parser.AssignmentStatementContext ctx) {
-//        String id = ctx.identifier().getText();
-//        String expr = visit(ctx.expression());
-//        System.out.println(id + " := " + expr);
-//        return super.visitAssignmentStatement(ctx);
-//    }
+    @Override
+    public String visitAssignmentStatement(PL0Parser.AssignmentStatementContext ctx) {
+        String id = ctx.identifier().getText();
+        String expr = visit(ctx.expression());
+        System.out.println(getCounterFormat() + id + " := " + expr);
+        return null;
+    }
 
     @Override
     public String visitExpression(PL0Parser.ExpressionContext ctx) {
@@ -22,34 +26,28 @@ public class PL0VisitorImpl extends PL0BaseVisitor<String> {
         if (expr != null) {
             // expression (PLUS|MINUS) term
             // 判断符号
-            if (minus != null) {
-                op = minus.getText();
-            } else {
-                op = ctx.PLUS().getText();
-            }
+            op = (minus != null) ? "-" : "+";
+
             // 递归调用
             String left = visit(expr);
             String right = visit(ctx.term());
             String res = newTempVar();
+
             // 打印中间代码
-            System.out.println(res + " = " + left + " " + op + " " + right);
+            System.out.println(getCounterFormat() + res + " = " + left + " " + op + " " + right);
             return res;
         } else {
             // (PLUS | MINUS)? term情况
-            var plus = ctx.PLUS();
-
             String term = visit(ctx.term());
+            op = (minus != null) ? minus.getText() : (ctx.PLUS() != null ? ctx.PLUS().getText() : "");
 
-            if (minus != null) {
+            if (!op.isEmpty()) {
                 String res = newTempVar();
-                System.out.println(res + " = " + minus.getText() + term);
+                System.out.println(getCounterFormat() + res + " = " + op + " " + term);
                 return res;
-            } else if (plus != null) {
-                String res = newTempVar();
-                System.out.println(res + " = " + plus.getText() + term);
-                return res;
+            } else {
+                return term;
             }
-            return ctx.getText();
         }
     }
 
@@ -58,19 +56,15 @@ public class PL0VisitorImpl extends PL0BaseVisitor<String> {
         var term = ctx.term();
         if (term != null) {
             // term (TIMES | DIV) factor
-            var times = ctx.TIMES();
-            String op;
-            if (times != null) {
-                op = times.getText();
-            } else {
-                op = ctx.DIV().getText();
-            }
+            String op = (ctx.TIMES() != null) ? "*" : "/";
+
             // 递归调用
             String left = visit(term);
-            String right = ctx.factor().getText();
+            String right = visit(ctx.factor());
             String res = newTempVar();
+
             // 打印中间代码
-            System.out.println(res + " = " + left + " " + op + " " + right);
+            System.out.println(getCounterFormat() + res + " = " + left + " " + op + " " + right);
             return res;
         } else {
             // factor
