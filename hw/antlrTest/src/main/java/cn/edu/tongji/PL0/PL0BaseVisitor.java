@@ -137,4 +137,11 @@ public class PL0BaseVisitor<T> extends AbstractParseTreeVisitor<T> implements PL
 	 * {@link #visitChildren} on {@code ctx}.</p>
 	 */
 	@Override public T visitIdentifier(PL0Parser.IdentifierContext ctx) { return visitChildren(ctx); }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation returns the result of calling
+	 * {@link #visitChildren} on {@code ctx}.</p>
+	 */
+	@Override public T visitM(PL0Parser.MContext ctx) { return visitChildren(ctx); }
 }

@@ -12,9 +12,12 @@ public class PL0Main {
                 "PROGRAM xxx" +
                         "VAR set;" +
                         "BEGIN" +
-                        "   set := 1;" +
-                        "   a := (23+1) * set;" +
-                        "END;"
+//                        "   set := 1;" +
+//                        "   a := (23+1) * set;" +
+                        "   WHILE a > 23 DO a := a + 23;" +
+//                        "   IF a > 23 THEN IF b > 23 + 2 THEN set := 23" +
+                        "   set := 23" +
+                        "END"
                         ));
         PL0Parser parser = new PL0Parser(new CommonTokenStream(lexer));
 
@@ -22,6 +25,7 @@ public class PL0Main {
         PL0Parser.ProgramContext context = parser.program();
         PL0VisitorImpl visitor = new PL0VisitorImpl();
         visitor.visit(context);
+        visitor.output();
 
         System.out.println("finished!");
     }

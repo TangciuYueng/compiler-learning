@@ -117,4 +117,10 @@ public interface PL0Visitor<T> extends ParseTreeVisitor<T> {
 	 * @return the visitor result
 	 */
 	T visitIdentifier(PL0Parser.IdentifierContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link PL0Parser#m}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitM(PL0Parser.MContext ctx);
 }

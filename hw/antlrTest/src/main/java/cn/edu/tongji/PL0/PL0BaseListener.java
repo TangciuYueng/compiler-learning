@@ -227,6 +227,18 @@ public class PL0BaseListener implements PL0Listener {
 	 * <p>The default implementation does nothing.</p>
 	 */
 	@Override public void exitIdentifier(PL0Parser.IdentifierContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void enterM(PL0Parser.MContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitM(PL0Parser.MContext ctx) { }
 
 	/**
 	 * {@inheritDoc}

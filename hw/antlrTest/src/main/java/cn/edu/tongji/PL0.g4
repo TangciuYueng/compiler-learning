@@ -63,9 +63,9 @@ term : factor | term (TIMES | DIV) factor ;
 // <因子> -> <标识符>|<无符号整数>|(表达式)
 factor : identifier | unsignedInteger | LPAREN expression RPAREN ;
 // <条件语句> -> IF <条件> THEN <语句>
-conditionStatement : IF condition THEN statement ;
+conditionStatement : IF condition THEN m statement ;
 // <循环语句> -> WHILE <条件> DO <语句>
-loopStatement : WHILE condition DO statement ;
+loopStatement : WHILE m condition DO m statement ;
 // <条件> -> <表达式> <关系运算符> <表达式>
 condition : expression relationalOperator expression ;
 // <关系运算符> -> = | <> | < | <= | > | >=
@@ -74,3 +74,5 @@ relationalOperator : EQUAL | NEQ | LT | LE | GT | GE ;
 emptyStatement : ;
 // <标识符>
 identifier : ID ;
+// 记录地址
+m : ;

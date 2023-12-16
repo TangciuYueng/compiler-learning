@@ -186,4 +186,14 @@ public interface PL0Listener extends ParseTreeListener {
 	 * @param ctx the parse tree
 	 */
 	void exitIdentifier(PL0Parser.IdentifierContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link PL0Parser#m}.
+	 * @param ctx the parse tree
+	 */
+	void enterM(PL0Parser.MContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link PL0Parser#m}.
+	 * @param ctx the parse tree
+	 */
+	void exitM(PL0Parser.MContext ctx);
 }
