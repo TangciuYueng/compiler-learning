@@ -1,3 +1,4 @@
+// Generated from E:/xx/±‡“Î‘≠¿Ì/hw/antlrTest/src/main/java/cn/edu/tongji/PL0.g4 by ANTLR 4.13.1
 package cn.edu.tongji.PL0;
 import org.antlr.v4.runtime.tree.AbstractParseTreeVisitor;
 
@@ -60,6 +61,13 @@ public class PL0BaseVisitor<T> extends AbstractParseTreeVisitor<T> implements PL
 	 * {@link #visitChildren} on {@code ctx}.</p>
 	 */
 	@Override public T visitCompoundStatement(PL0Parser.CompoundStatementContext ctx) { return visitChildren(ctx); }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation returns the result of calling
+	 * {@link #visitChildren} on {@code ctx}.</p>
+	 */
+	@Override public T visitMultiStatement(PL0Parser.MultiStatementContext ctx) { return visitChildren(ctx); }
 	/**
 	 * {@inheritDoc}
 	 *

@@ -14,8 +14,11 @@ public class PL0Main {
                         "BEGIN" +
 //                        "   set := 1;" +
 //                        "   a := (23+1) * set;" +
-                        "   WHILE a > 23 DO a := a + 23;" +
-//                        "   IF a > 23 THEN IF b > 23 + 2 THEN set := 23" +
+                        "   WHILE a > 23 DO " +
+                        "   BEGIN " +
+                        "       a := a + 23;" +
+                        "       IF a > 23 THEN IF b > 23 + 2 THEN set := 23" +
+                        "   END;" +
                         "   set := 23" +
                         "END"
                         ));

@@ -33,7 +33,10 @@ public class PL0VisitorImpl extends PL0BaseVisitor<String> {
         int cnt = getMidCodeCounter();
         midCodes.put(cnt, id + " := " + expr);
 
-        return null;
+        int next = getNextCounter();
+        nextLists.put(next, new ArrayList<>());
+
+        return String.valueOf(next);
     }
 
     @Override
@@ -132,34 +135,27 @@ public class PL0VisitorImpl extends PL0BaseVisitor<String> {
         String entryIndexStr = visit(ctx.m());
         String nextIndexStr = visit(ctx.statement());
 
-        try {
-            int conditionIndex = Integer.parseInt(conditionIndexStr);
-            int entryIndex = Integer.parseInt(entryIndexStr);
+        int conditionIndex = Integer.parseInt(conditionIndexStr);
+        int entryIndex = conditionIndexStr != null? Integer.parseInt(entryIndexStr): -1;
 
-            // 获取条件为真时的列表
-            List<Integer> trueList = trueLists.getOrDefault(conditionIndex, new ArrayList<>());
-            // 更新条件为真时的中间代码
-            for (Integer num : trueList) {
-                String midCode = midCodes.get(num);
-                midCode = midCode + " " + entryIndex;
-                midCodes.put(num, midCode);
-            }
-
-            int nextIndex = nextIndexStr != null? Integer.parseInt(nextIndexStr): -1;
-            // 更新 nextList 为 falseList + statementNextList
-            int next = getNextCounter();
-            List<Integer> newNextList = new ArrayList<>(falseLists.getOrDefault(conditionIndex, new ArrayList<>()));
-            newNextList.addAll(nextLists.getOrDefault(nextIndex, new ArrayList<>()));
-
-            nextLists.put(next, newNextList);
-
-            return String.valueOf(next);
-        } catch (NumberFormatException e) {
-            // 处理无效的整数字符串
-            System.out.println("Error: Invalid integer string for condition or entry index");
+        // 获取条件为真时的列表
+        List<Integer> trueList = trueLists.getOrDefault(conditionIndex, new ArrayList<>());
+        // 更新条件为真时的中间代码
+        for (Integer num : trueList) {
+            String midCode = midCodes.get(num);
+            midCode = midCode + " " + entryIndex;
+            midCodes.put(num, midCode);
         }
 
-        return null;
+        int nextIndex = nextIndexStr != null? Integer.parseInt(nextIndexStr): -1;
+        // 更新 nextList 为 falseList + statementNextList
+        int next = getNextCounter();
+        List<Integer> newNextList = new ArrayList<>(falseLists.getOrDefault(conditionIndex, new ArrayList<>()));
+        newNextList.addAll(nextLists.getOrDefault(nextIndex, new ArrayList<>()));
+
+        nextLists.put(next, newNextList);
+
+        return String.valueOf(next);
     }
 
     @Override
@@ -204,6 +200,72 @@ public class PL0VisitorImpl extends PL0BaseVisitor<String> {
         midCodes.put(cnt, "goto " + m1Str);
 
         return String.valueOf(next);
+    }
+
+    @Override
+    public String visitCompoundStatement(PL0Parser.CompoundStatementContext ctx) {
+        String nextIndexStr = visit(ctx.multiStatement());
+        int nextIndex = nextIndexStr != null? Integer.parseInt(nextIndexStr): -1;
+        List<Integer> newNextList = new ArrayList<>(nextLists.getOrDefault(nextIndex, new ArrayList<>()));
+
+        int next = getNextCounter();
+        nextLists.put(next, newNextList);
+
+        return String.valueOf(next);
+    }
+
+    @Override
+    public String visitMultiStatement(PL0Parser.MultiStatementContext ctx) {
+        var m = ctx.m();
+        if (m != null) {
+            String nextIndexStr = visit(ctx.multiStatement());
+            int nextIndex = nextIndexStr != null? Integer.parseInt(nextIndexStr): -1;
+
+            String mEntryStr = visit(m);
+            int mEntry = mEntryStr != null? Integer.parseInt(mEntryStr): -1;
+
+            List<Integer> nextList = nextLists.getOrDefault(nextIndex, new ArrayList<>());
+            // 回填 multiStatement
+            for (Integer num: nextList) {
+                String midCode = midCodes.get(num);
+                midCode = midCode + " " + mEntry;
+                midCodes.put(num, midCode);
+            }
+
+            // L.nextList = S.nextList
+            String statementNextIndexStr = visit(ctx.statement());
+            int statementNextIndex = statementNextIndexStr != null? Integer.parseInt(statementNextIndexStr): -1;
+
+            int next = getNextCounter();
+            nextLists.put(next, new ArrayList<>(nextLists.get(statementNextIndex)));
+
+            return String.valueOf(next);
+        } else {
+            // 只有一个 statement
+            String nextIndexStr = visit(ctx.statement());
+            int nextIndex = nextIndexStr != null? Integer.parseInt(nextIndexStr): -1;
+            List<Integer> newNextList = new ArrayList<>(nextLists.getOrDefault(nextIndex, new ArrayList<>()));
+
+            int next = getNextCounter();
+            nextLists.put(next, newNextList);
+
+            return String.valueOf(next);
+        }
+    }
+
+    @Override
+    public String visitStatement(PL0Parser.StatementContext ctx) {
+        if (ctx.assignmentStatement() != null) {
+            return visit(ctx.assignmentStatement());
+        } else if (ctx.conditionStatement() != null) {
+            return visit(ctx.conditionStatement());
+        } else if (ctx.loopStatement() != null) {
+            return visit(ctx.loopStatement());
+        } else if (ctx.compoundStatement() != null) {
+            return visit(ctx.compoundStatement());
+        } else {
+            return null;
+        }
     }
 
     @Override

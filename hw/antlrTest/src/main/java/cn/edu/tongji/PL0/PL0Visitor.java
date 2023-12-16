@@ -1,3 +1,4 @@
+// Generated from E:/xx/±‡“Î‘≠¿Ì/hw/antlrTest/src/main/java/cn/edu/tongji/PL0.g4 by ANTLR 4.13.1
 package cn.edu.tongji.PL0;
 import org.antlr.v4.runtime.tree.ParseTreeVisitor;
 
@@ -51,6 +52,12 @@ public interface PL0Visitor<T> extends ParseTreeVisitor<T> {
 	 * @return the visitor result
 	 */
 	T visitCompoundStatement(PL0Parser.CompoundStatementContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link PL0Parser#multiStatement}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitMultiStatement(PL0Parser.MultiStatementContext ctx);
 	/**
 	 * Visit a parse tree produced by {@link PL0Parser#statement}.
 	 * @param ctx the parse tree

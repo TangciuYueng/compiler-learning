@@ -1,3 +1,4 @@
+// Generated from E:/xx/±‡“Î‘≠¿Ì/hw/antlrTest/src/main/java/cn/edu/tongji/PL0.g4 by ANTLR 4.13.1
 package cn.edu.tongji.PL0;
 
 import org.antlr.v4.runtime.ParserRuleContext;
@@ -95,6 +96,18 @@ public class PL0BaseListener implements PL0Listener {
 	 * <p>The default implementation does nothing.</p>
 	 */
 	@Override public void exitCompoundStatement(PL0Parser.CompoundStatementContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void enterMultiStatement(PL0Parser.MultiStatementContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitMultiStatement(PL0Parser.MultiStatementContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *

@@ -1,3 +1,4 @@
+// Generated from E:/xx/±‡“Î‘≠¿Ì/hw/antlrTest/src/main/java/cn/edu/tongji/PL0.g4 by ANTLR 4.13.1
 package cn.edu.tongji.PL0;
 import org.antlr.v4.runtime.tree.ParseTreeListener;
 
@@ -76,6 +77,16 @@ public interface PL0Listener extends ParseTreeListener {
 	 * @param ctx the parse tree
 	 */
 	void exitCompoundStatement(PL0Parser.CompoundStatementContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link PL0Parser#multiStatement}.
+	 * @param ctx the parse tree
+	 */
+	void enterMultiStatement(PL0Parser.MultiStatementContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link PL0Parser#multiStatement}.
+	 * @param ctx the parse tree
+	 */
+	void exitMultiStatement(PL0Parser.MultiStatementContext ctx);
 	/**
 	 * Enter a parse tree produced by {@link PL0Parser#statement}.
 	 * @param ctx the parse tree

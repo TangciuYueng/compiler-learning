@@ -51,7 +51,8 @@ unsignedInteger : NUM ;
 // <变量说明> -> VAR<标识符>{,<标识符>};
 variableDeclaration : VAR identifier (COMMA identifier)* SEMI ;
 // <复合语句> -> BEGIN<语句>{;<语句>}END
-compoundStatement : BEGIN statement (SEMI statement)* END ;
+compoundStatement : BEGIN multiStatement END ;
+multiStatement : statement | multiStatement SEMI m statement;
 // <语句> -> <赋值语句> | <条件语句 > | <循环语句> | <复合语句> | <空语句>
 statement : assignmentStatement | conditionStatement | loopStatement | compoundStatement | emptyStatement ;
 // <赋值语句> -> <标识符>:=<表达式>
