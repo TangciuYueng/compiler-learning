@@ -40,6 +40,17 @@ public class PL0VisitorImpl extends PL0BaseVisitor<String> {
     }
 
     @Override
+    public String visitConstantDefinition(PL0Parser.ConstantDefinitionContext ctx) {
+        String id = ctx.identifier().getText();
+        String uInt = ctx.unsignedInteger().getText();
+
+        int cnt = getMidCodeCounter();
+        midCodes.put(cnt, id + " := " + uInt);
+
+        return null;
+    }
+
+    @Override
     public String visitExpression(PL0Parser.ExpressionContext ctx) {
         var expr = ctx.expression();
         String op;
