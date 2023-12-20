@@ -10,6 +10,7 @@ public class PL0Main {
     public static void main(String[] args) {
         PL0Lexer lexer = new PL0Lexer(CharStreams.fromString(
                 "PROGRAM xxx" +
+                        "CONST a := 23;" +
                         "VAR set;" +
                         "BEGIN" +
 //                        "   set := 1;" +
