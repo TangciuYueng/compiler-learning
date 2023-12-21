@@ -1,0 +1,14 @@
+PROGRAM xxx
+CONST a := 23, b:= 9;
+VAR set, abc, set;
+BEGIN
+	set:=1;
+	a := (23 + 1) * set;
+	WHILE a > 23 DO
+	BEGIN
+		a:=a-23;
+		IF a>23 THEN IF b > 23 + 2 THEN set:=23
+	END;
+	set := 23 * a / b;
+	abc := 23
+END

@@ -6,23 +6,15 @@ import cn.edu.tongji.PL0.PL0VisitorImpl;
 import org.antlr.v4.runtime.CharStreams;
 import org.antlr.v4.runtime.CommonTokenStream;
 
+import java.io.IOException;
+import java.nio.file.Paths;
+import java.nio.file.Path;
+
 public class PL0Main {
-    public static void main(String[] args) {
-        PL0Lexer lexer = new PL0Lexer(CharStreams.fromString(
-                "PROGRAM xxx" +
-                        "CONST a := 23;" +
-                        "VAR set;" +
-                        "BEGIN" +
-//                        "   set := 1;" +
-//                        "   a := (23+1) * set;" +
-                        "   WHILE a > 23 DO " +
-                        "   BEGIN " +
-                        "       a := a + 23;" +
-                        "       IF a > 23 THEN IF b > 23 + 2 THEN set := 23" +
-                        "   END;" +
-                        "   set := 23" +
-                        "END"
-                        ));
+    public static void main(String[] args) throws IOException {
+        Path filePath = Paths.get("PL0SourceCode.txt");
+
+        PL0Lexer lexer = new PL0Lexer(CharStreams.fromPath(filePath));
         PL0Parser parser = new PL0Parser(new CommonTokenStream(lexer));
 
         parser.setBuildParseTree(true);

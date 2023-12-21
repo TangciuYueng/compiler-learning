@@ -1,8 +1,14 @@
 package cn.edu.tongji.PL0;
 
+import java.io.*;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.*;
 
 public class PL0VisitorImpl extends PL0BaseVisitor<String> {
+    private static String FILE_PATH = "midCodes.txt";
+    private static String CONST = "const";
+    private static String VAR = "var";
     private int tempVarCounter = 0;
     private int conditionCounter = 0;
     private int nextCounter = 0;
@@ -11,6 +17,7 @@ public class PL0VisitorImpl extends PL0BaseVisitor<String> {
     private Map<Integer, List<Integer>> trueLists = new HashMap<>();
     private Map<Integer, List<Integer>> falseLists = new HashMap<>();
     private Map<Integer, List<Integer>> nextLists = new HashMap<>();
+    private Map<String, String> symbolTable = new HashMap<>();
     private String newTempVar() {
         return "t" + tempVarCounter++;
     }
@@ -27,7 +34,8 @@ public class PL0VisitorImpl extends PL0BaseVisitor<String> {
     // +|- 运算 控制 条件
     @Override
     public String visitAssignmentStatement(PL0Parser.AssignmentStatementContext ctx) {
-        String id = ctx.identifier().getText();
+        String id = visit(ctx.identifier());
+
         String expr = visit(ctx.expression());
 
         int cnt = getMidCodeCounter();
@@ -42,11 +50,30 @@ public class PL0VisitorImpl extends PL0BaseVisitor<String> {
     @Override
     public String visitConstantDefinition(PL0Parser.ConstantDefinitionContext ctx) {
         String id = ctx.identifier().getText();
+        if (symbolTable.containsKey(id)) {
+            System.out.println(id + "已声明");
+        } else {
+            symbolTable.put(id, CONST);
+        }
         String uInt = ctx.unsignedInteger().getText();
 
         int cnt = getMidCodeCounter();
         midCodes.put(cnt, id + " := " + uInt);
 
+        return null;
+    }
+
+    @Override
+    public String visitVariableDeclaration(PL0Parser.VariableDeclarationContext ctx) {
+        for (PL0Parser.IdentifierContext identifierContext : ctx.identifier()) {
+            String id = identifierContext.getText();
+            // 判断是否已经在符号表中
+            if (symbolTable.containsKey(id)) {
+                System.out.println(id + "已经声明");
+            } else {
+                symbolTable.put(id, VAR);
+            }
+        }
         return null;
     }
 
@@ -110,9 +137,12 @@ public class PL0VisitorImpl extends PL0BaseVisitor<String> {
         if (expr != null) {
             // 去掉括号
             return visit(expr);
-        } else {
+        }
+        var uInt = ctx.unsignedInteger();
+        if (uInt != null) {
             return ctx.getText();
         }
+        return visit(ctx.identifier());
     }
 
     @Override
@@ -248,7 +278,7 @@ public class PL0VisitorImpl extends PL0BaseVisitor<String> {
             int statementNextIndex = statementNextIndexStr != null? Integer.parseInt(statementNextIndexStr): -1;
 
             int next = getNextCounter();
-            nextLists.put(next, new ArrayList<>(nextLists.get(statementNextIndex)));
+            nextLists.put(next, new ArrayList<>(nextLists.getOrDefault(statementNextIndex, new ArrayList<>())));
 
             return String.valueOf(next);
         } else {
@@ -284,9 +314,30 @@ public class PL0VisitorImpl extends PL0BaseVisitor<String> {
         return String.valueOf(midCodeCounter);
     }
 
-    public void output() {
-        for (Map.Entry<Integer, String> entry: midCodes.entrySet()) {
-            System.out.println(entry.getKey() + ": " + entry.getValue());
+    @Override
+    public String visitIdentifier(PL0Parser.IdentifierContext ctx) {
+        String id = ctx.getText();
+        if (!symbolTable.containsKey(id)) {
+            System.out.println(id + "未声明");
         }
+        return id;
+    }
+
+    public void output() {
+        try (BufferedWriter writer = Files.newBufferedWriter(Paths.get(FILE_PATH))) {
+            for (Map.Entry<Integer, String> entry : midCodes.entrySet()) {
+                String line = entry.getKey() + ": " + entry.getValue();
+                System.out.println(line);
+                writer.write(line);
+                writer.newLine();  // 插入换行符
+            }
+        } catch (IOException e) {
+            throw new RuntimeException("Error writing to file", e);
+        }
+//
+//        for (Map.Entry<String, String> entry: symbolTable.entrySet()) {
+//            System.out.println(entry.getKey() + ": " + entry.getValue());
+//        }
+
     }
 }
