@@ -283,6 +283,23 @@ grammar = [
 ]
 
 import re
+def reduce_production(grammar, state_record, word_record, num):
+    production = grammar[num]
+    left = production.left
+    reduce_length = len(production.right)
+    if reduce_length == 1 and production.right[0].word == 'EPSILON':
+        reduce_length = 0
+    for _ in range(reduce_length):
+        state_record.pop()
+        word_record.pop()
+    new_top = state_record[-1]
+    new_action = lr1_table[new_top].get(left)
+    new_match = re.search(r'\d+', new_action)
+    new_num = int(new_match.group())
+    state_record.append(new_num)
+    word_record.append(left)
+    print(f'reduce with {production} to state {state_record[-1]}')
+
 def test_grammer_words(words):
     global symbols, lr1_table
     read_from_pkl('LR1.pkl')
@@ -297,61 +314,50 @@ def test_grammer_words(words):
     index = 0
     while index < len(words):
         prep = []
-        while len (word_record) != 0:
-            prep.append(word_record.pop())
 
-        it = len(prep) - 1
-        while it >= 0:
-            print(prep[it])
-            word_record.append(prep[it])
-            it -= 1
+        prep.extend(reversed(word_record))
+        word_record.clear()
+
+        # 打印并更新符号栈
+        for word in reversed(prep):
+            print(word)
+            word_record.append(word)
 
         print()
 
+        # 当前面临的符号
         top = state_record[-1]
         print(f'{top} face: {words[index]}')
         action = lr1_table[top].get(words[index])
 
+        # 需要进行的动作
         if not action:
             print("grammer error")
             return
-        
         print(action)
+
+        # 得到操作
         match = re.search(r'\d+', action)
-        num = int(match.group())
+        if match:
+            num = int(match.group())
+        
+        # 移进
         if action.startswith('s'):
             state_record.append(num)
             word_record.append(words[index])
             print(f'shift {words[index]} to {num}')
         elif action.startswith('r'):
-            # get the Number num production
-            production = grammar[num]
-            # print(f'reduce produciton {production}')
-            left = production.left
-            reduce_length = len(production.right)
-            if reduce_length == 1 and production.right[0].word == 'EPSILON':
-                reduce_length = 0
-            for _ in range(reduce_length):
-                state_record.pop()
-                word_record.pop()
-            new_top = state_record[-1]
-            new_action = lr1_table[new_top].get(left)
-            # print(f'new action {new_action}')
-            new_match = re.search(r'\d+', new_action)
-            new_num = int(new_match.group())
-            # print(f'new num {new_num}')
-            state_record.append(new_num)
-            word_record.append(left)
-            print(f'reduce with {production} to state {state_record[-1]}')
+            reduce_production(grammar, state_record, word_record, num)
             index -= 1
+        # 接受
         elif action.startswith('acc'):
             print('reduce successfully')
-            return
+            break
 
         index += 1
             
 def test_grammer():
-    words = ['PROGRAM', 'ID', 'CONST', 'ID', 'ASSIGN', 'NUM', 'SEMI', 'VAR', 'ID', 'COMMA', 'ID', 'COMMA', 'ID', 'SEMI', 'BEGIN', 'ID', 'ASSIGN', 'NUM', 'SEMI', 'ID', 'ASSIGN', 'NUM', 'SEMI', 'ID', 'ASSIGN', 'NUM', 'SEMI', 'WHILE', 'M', 'ID', 'LT', 'NUM', 'DO', 'M', 'ID', 'ASSIGN', 'ID', 'PLUS', 'ID', 'SEMI', 'IF', 'ID', 'NEQ', 'NUM', 'THEN', 'M', 'ID', 'ASSIGN', 'ID', 'MINUS', 'NUM', 'SEMI', 'IF', 'ID', 'LE', 'NUM', 'THEN', 'M', 'ID', 'ASSIGN', 'NUM', 'SEMI', 'IF', 'ID', 'GE', 'NUM', 'THEN', 'M', 'ID', 'ASSIGN', 'ID', 'PLUS', 'ID', 'MINUS', 'LPAREN', 'ID', 'TIMES', 'ID', 'DIV', 'ID', 'RPAREN', 'SEMI', 'ID', 'ASSIGN', 'ID', 'PLUS', 'ID', 'SEMI', 'END']
+    words = ['PROGRAM', 'ID', 'CONST', 'ID', 'ASSIGN', 'NUM', 'SEMI', 'VAR', 'ID', 'COMMA', 'ID', 'COMMA', 'ID', 'SEMI', 'BEGIN', 'ID', 'ASSIGN', 'NUM', 'SEMI', 'ID', 'ASSIGN', 'NUM', 'SEMI', 'ID', 'ASSIGN', 'NUM', 'SEMI', 'WHILE', 'M', 'ID', 'LT', 'NUM', 'DO', 'M', 'ID', 'ASSIGN', 'ID', 'PLUS', 'ID', 'SEMI', 'IF', 'ID', 'NEQ', 'NUM', 'THEN', 'M', 'ID', 'ASSIGN', 'ID', 'MINUS', 'NUM', 'SEMI', 'IF', 'ID', 'LE', 'NUM', 'THEN', 'M', 'ID', 'ASSIGN', 'NUM', 'SEMI', 'IF', 'ID', 'GE', 'NUM', 'THEN', 'M', 'ID', 'ASSIGN', 'ID', 'PLUS', 'ID', 'MINUS', 'LPAREN', 'ID', 'TIMES', 'ID', 'DIV', 'ID', 'RPAREN', 'SEMI', 'ID', 'ASSIGN', 'ID', 'PLUS', 'ID', 'SEMI', 'END', 'TERMINAL']
     test_grammer_words(words)
         
 
