@@ -487,7 +487,7 @@ def visit_condition_statement(node, word_record):
 
     # 更新 nextList 为 falseList + statementNextList
     new_next_cnt = next_counter.get_next_counter()
-    new_next_list = list(false_lists.get(next_cnt, [])) + list(next_lists.get(next_cnt, []))
+    new_next_list = list(false_lists.get(cond_cnt, [])) + list(next_lists.get(next_cnt, []))
     next_lists[new_next_cnt] = new_next_list
 
     word_record.pop()
@@ -814,7 +814,7 @@ if __name__ == '__main__':
 
     # test_grammer()
 
-    src = read_src_code_from_file('src_code.txt')
+    # src = read_src_code_from_file('src_code.txt')
     compiler(src, 'LR1.pkl')
 
     # print(len(visit_functions))
