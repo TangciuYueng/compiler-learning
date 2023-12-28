@@ -36,47 +36,48 @@ class TokenType(Enum):
     COMMA = auto()
 
 single_symbol = {
-    '+': TokenType.PLUS, 
-    '-': TokenType.MINUS, 
-    '*': TokenType.TIMES, 
-    '/': TokenType.DIV, 
-    '=': TokenType.EQUAL, 
-    '(': TokenType.LPAREN, 
-    ')': TokenType.RPAREN, 
-    ';': TokenType.SEMI, 
-    ',': TokenType.COMMA
+    '+': 'PLUS', 
+    '-': 'MINUS', 
+    '*': 'TIMES', 
+    '/': 'DIV', 
+    '=': 'EQUAL', 
+    '(': 'LPAREN', 
+    ')': 'RPAREN', 
+    ';': 'SEMI', 
+    ',': 'COMMA'
 }
 
 def error(message):
     raise ValueError(f"Lexical error: {message}")
 
-def next():
-    global index
+def next(index):
     while index < len(src):
         if src[index] in ['\n', ' ', '\t', '\r']:
             index += 1
             
+        # 标识符
         elif src[index].islower():
             word = ''
             while index < len(src) and (src[index].islower() or src[index].isdigit()):
                 word += src[index]
                 index += 1
             
-            return (word, TokenType.ID)
+            return (word, 'ID'), index
         
+        # 数字
         elif src[index].isdigit():
             num = 0
             while index < len(src) and src[index].isdigit():
                 num = num * 10 + int(src[index])
                 index += 1
             
-            return (num, TokenType.NUM)
+            return (num, 'NUM'), index
 
         elif src[index] == ':':
             index += 1
             if index < len(src) and src[index] == '=':
                 index += 1
-                return (":=", TokenType.ASSIGN)
+                return (":=", 'ASSIGN'), index
             else:
                 error("Expected '=' after ':'")
 
@@ -84,31 +85,31 @@ def next():
             index += 1
             if index < len(src) and src[index] == '=':
                 index += 1
-                return ('<=', TokenType.LE)
+                return ('<=', 'LE'), index
             elif index < len(src) and src[index] == '>':
                 index += 1
-                return ('<>', TokenType.NEQ)
+                return ('<>', 'NEQ'), index
             else:
-                return ('<', TokenType.LT)
+                return ('<', 'LT'), index
         
         elif src[index] == '>':
             index += 1
             if index < len(src) and src[index] == '=':
                 index += 1
-                return ('>=', TokenType.GE)
+                return ('>=', 'GE'), index
             else:
-                return ('>', TokenType.GT)
+                return ('>', 'GT'), index
         
         elif src[index] in single_symbol.keys():
             index += 1
-            return (src[index - 1], single_symbol[src[index - 1]])
+            return (src[index - 1], single_symbol[src[index - 1]]), index
 
         elif src[index].isupper():
             keyword_found = False
             for keyword in ["PROGRAM", "BEGIN", "END", "CONST", "VAR", "WHILE", "DO", "IF", "THEN"]:
                 if src[index:].startswith(keyword):
                     index += len(keyword)
-                    return (keyword, TokenType[keyword])
+                    return (keyword, keyword), index
                     keyword_found = True
 
             if not keyword_found:
@@ -116,6 +117,7 @@ def next():
 
         else:
             error("Invalid character")
+    return ('TERMINAL', 'TERMINAL'), index
 
 src = (
         "PROGRAM add\n"
@@ -168,7 +170,7 @@ def save_lr1_table_to_pkl(file_path):
 def test():
     while index < len(src):
         try:
-            lex = next()
+            lex, index = next(index)
             if lex:
                 print(lex)
         except ValueError as e:
@@ -355,6 +357,64 @@ def test_grammer_words(words):
             break
 
         index += 1
+
+def grammar_analyzer(word, state_record, word_record):
+    global symbols, lr1_table
+    # global state_record, word_record
+
+    prep = []
+
+    prep.extend(reversed(word_record))
+    word_record.clear()
+
+    for w in reversed(prep):
+        word_record.append(w)
+
+    top = state_record[-1]
+    action = lr1_table[top].get(word)
+
+    if not action:
+        error('grammar error')
+    
+    match = re.search(r'\d+', action)
+    num = None
+    if match:
+        num = int(match.group())
+
+    return action, num
+
+def compiler(src, file_path):
+    read_from_pkl(file_path)
+    index = 0
+    state_record = [0]
+    word_record = ['TERMINAL']
+    need_next = True
+    while True:
+        try: 
+            if need_next:
+                lex, index = next(index)
+            if lex:
+                # print(f'current lex: {lex[1]}')
+                action, num = grammar_analyzer(lex[1], state_record, word_record)
+                # 移进
+                if action.startswith('s'):
+                    state_record.append(num)
+                    word_record.append(lex)
+                    # 跳到 next() 得到下一个 lex
+                    need_next = True
+                # 规约
+                elif action.startswith('r'):
+                    reduce_production(grammar, state_record, word_record, num)
+                    # 保持原来的 lex
+                    need_next = False
+                # 接受
+                elif action.startswith('acc'):
+                    print('finish successfully!')
+                    break
+
+        except ValueError as e:
+            print(e)
+            break
             
 def test_grammer():
     words = ['PROGRAM', 'ID', 'CONST', 'ID', 'ASSIGN', 'NUM', 'SEMI', 'VAR', 'ID', 'COMMA', 'ID', 'COMMA', 'ID', 'SEMI', 'BEGIN', 'ID', 'ASSIGN', 'NUM', 'SEMI', 'ID', 'ASSIGN', 'NUM', 'SEMI', 'ID', 'ASSIGN', 'NUM', 'SEMI', 'WHILE', 'M', 'ID', 'LT', 'NUM', 'DO', 'M', 'ID', 'ASSIGN', 'ID', 'PLUS', 'ID', 'SEMI', 'IF', 'ID', 'NEQ', 'NUM', 'THEN', 'M', 'ID', 'ASSIGN', 'ID', 'MINUS', 'NUM', 'SEMI', 'IF', 'ID', 'LE', 'NUM', 'THEN', 'M', 'ID', 'ASSIGN', 'NUM', 'SEMI', 'IF', 'ID', 'GE', 'NUM', 'THEN', 'M', 'ID', 'ASSIGN', 'ID', 'PLUS', 'ID', 'MINUS', 'LPAREN', 'ID', 'TIMES', 'ID', 'DIV', 'ID', 'RPAREN', 'SEMI', 'ID', 'ASSIGN', 'ID', 'PLUS', 'ID', 'SEMI', 'END', 'TERMINAL']
@@ -364,4 +424,7 @@ def test_grammer():
 if __name__ == '__main__':
     # index = 0
     # test()
-    test_grammer()
+
+    # test_grammer()
+
+    compiler(src, 'LR1.pkl')
