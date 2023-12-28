@@ -204,14 +204,14 @@ grammar = [
     Production("VariableDeclaration", [Element("VAR", True), Element("ID", True), Element("NextID", False)]),
     Production("NextID", [Element("COMMA", True), Element("ID", True), Element("NextID", False)]),
     Production("NextID", [Element("SEMI", True)]),
-    Production("CompoundStatement", [Element("BEGIN", True), Element("Statement", False), Element("NextStatement", False)]),
-    Production("NextStatement", [
+    Production("CompoundStatement", [Element("BEGIN", True), Element("LastStatement", False), Element("END", True)]),
+    Production("LastStatement", [
+        Element("LastStatement", False),
         Element("SEMI", True),
         Element("M", False),
-        Element("Statement", False),
-        Element("NextStatement", False)
+        Element("Statement", False)
     ]),
-    Production("NextStatement", [Element("END", True)]),
+    Production("LastStatement", [Element("Statement", False)]),
     Production("Statement", [Element("AssignmentStatement", False)]),
     Production("Statement", [Element("ConditionStatement", False)]),
     Production("Statement", [Element("LoopStatement", False)]),
@@ -321,12 +321,48 @@ def visit_next_id(node, word_record):
         existing_symbols[node[1]] = TokenType.VAR
 
 def visit_compound_statement(node, word_record):
-    # CompoundStatement -> BEGIN Statement NextStatement
-    pass
+    # CompoundStatement -> BEGIN LastStatement Statement END
+    next_cnt = node[1]
+    new_next_list = list(next_lists.get(next_cnt, []))
 
-def visit_next_statement(node, word_record):
-    # NextStatement -> SEMI M Statement NextStatement
-    pass
+    new_next_cnt = next_counter.get_next_counter()
+    next_lists[new_next_cnt] = new_next_list
+
+    word_record.pop()
+    word_record.append(new_next_cnt)
+
+def visit_last_statement(node, word_record):
+    # LastStatement -> LastStatement SEMI M Statement
+    next_cnt = node[0]
+    m = node[2]
+
+    # 回填
+    next_list = next_lists.get(next_cnt)
+    if next_list:
+        for num in next_list:
+            mid_code = mid_codes.get(num, "")
+            mid_code = f'{mid_code}{m}'
+            mid_codes[num] = mid_code
+
+    # next_list 往前传
+    statement_next_cnt = node[3]
+    new_next_cnt = next_counter.get_next_counter()
+    next_lists[new_next_cnt] = list(next_lists.get(statement_next_cnt, []))
+
+    word_record.pop()
+    word_record.append(new_next_cnt)
+
+def visit_last_statement_single(node, word_record):
+    # LastStatement -> Statement
+    next_cnt = node[0]
+    new_next_list = next_lists.get(next_cnt, [])
+
+    new_next_cnt = next_counter.get_next_counter()
+
+    next_lists[new_next_cnt] = new_next_list
+
+    word_record.pop()
+    word_record.append(new_next_cnt)
 
 def visit_statement_assignment(node, word_record):
     # Statement -> AssignmentStatement
@@ -342,7 +378,6 @@ def visit_statement_loop(node, word_record):
     # Statement -> LoopStatement
     word_record.pop()
     word_record.append(node[0])
-
 
 def visit_statement_compound(node, word_record):
     # Statement -> CompoundStatement
@@ -395,7 +430,6 @@ def visit_expression_e_p_t(node, word_record):
 
 def visit_expression_e_m_t(node, word_record):
     # Expression -> Expression MINUS Term
-    print(node)
     res = temp_var_counter.new_temp_var()
     cnt = mid_code_counter.get_mid_code_counter()
     mid_codes[cnt] = f'{res} = {node[0]} - {node[2]}'
@@ -575,9 +609,9 @@ visit_functions = [
     visit_variable_declaration, # VariableDeclaration -> VAR ID NextID
     visit_next_id, # NextID -> COMMA ID NextID
     None, # NextID -> SEMI
-    visit_compound_statement, # CompoundStatement -> BEGIN Statement NextStatement
-    visit_next_statement, # NextStatement -> SEMI M Statement NextStatement
-    None, # NextStatement -> END
+    visit_compound_statement, # CompoundStatement -> BEGIN LastStatement Statement END
+    visit_last_statement, # LastStatement -> LastStatement SEMI M Statement
+    visit_last_statement_single, # LastStatement -> Statement
     visit_statement_assignment, # Statement -> AssignmentStatement
     visit_statement_condition, # Statement -> ConditionStatement
     visit_statement_loop, # Statement -> LoopStatement
@@ -633,7 +667,7 @@ def reduce_production(grammar, state_record, word_record, num):
     if visit_functions[num]:
         visit_functions[num](right, word_record)
 
-    print(f'reduce with {production} to state {state_record[-1]}')
+    # print(f'reduce with {production} to state {state_record[-1]}')
 
 def test_grammer_words(words):
     global symbols, lr1_table
@@ -716,6 +750,20 @@ def grammar_analyzer(word, state_record, word_record):
 
     return action, num
 
+def show_mid_codes(mid_codes):
+    for num, mid_code in mid_codes.items():
+        print(f'{num}: {mid_code}')
+
+def write_mid_codes_to_file(mid_codes, file_path):
+    with open(file_path, 'w') as file:
+        for num, mid_code in mid_codes.items():
+            file.write(f'{num}: {mid_code}\n')
+
+def read_src_code_from_file(file_path):
+    with open(file_path, 'r') as file:
+        file_content = file.read()
+    return file_content
+
 def compiler(src, file_path):
     read_from_pkl(file_path)
     index = 0
@@ -742,14 +790,15 @@ def compiler(src, file_path):
                     need_next = False
                 # 接受
                 elif action.startswith('acc'):
-                    print('finish successfully!')
+                    # print('finish successfully!')
                     break
 
         except ValueError as e:
             print(e)
             break
             
-    print(mid_codes)
+    show_mid_codes(mid_codes)
+    write_mid_codes_to_file(mid_codes, './mid_codes.txt')
 
 def test_grammer():
     words = ['PROGRAM', 'ID', 'CONST', 'ID', 'ASSIGN', 'NUM', 'SEMI', 'VAR', 'ID', 'COMMA', 'ID', 'COMMA', 'ID', 'SEMI', 'BEGIN', 'ID', 'ASSIGN', 'NUM', 'SEMI', 'ID', 'ASSIGN', 'NUM', 'SEMI', 'ID', 'ASSIGN', 'NUM', 'SEMI', 'WHILE', 'M', 'ID', 'LT', 'NUM', 'DO', 'M', 'ID', 'ASSIGN', 'ID', 'PLUS', 'ID', 'SEMI', 'IF', 'ID', 'NEQ', 'NUM', 'THEN', 'M', 'ID', 'ASSIGN', 'ID', 'MINUS', 'NUM', 'SEMI', 'IF', 'ID', 'LE', 'NUM', 'THEN', 'M', 'ID', 'ASSIGN', 'NUM', 'SEMI', 'IF', 'ID', 'GE', 'NUM', 'THEN', 'M', 'ID', 'ASSIGN', 'ID', 'PLUS', 'ID', 'MINUS', 'LPAREN', 'ID', 'TIMES', 'ID', 'DIV', 'ID', 'RPAREN', 'SEMI', 'ID', 'ASSIGN', 'ID', 'PLUS', 'ID', 'SEMI', 'END', 'TERMINAL']
@@ -760,8 +809,12 @@ if __name__ == '__main__':
     # index = 0
     # test()
 
+    # read_lr1_table_from_csv()
+    # csv_to_pkl('LR1.pkl')
+
     # test_grammer()
 
+    src = read_src_code_from_file('src_code.txt')
     compiler(src, 'LR1.pkl')
 
     # print(len(visit_functions))
