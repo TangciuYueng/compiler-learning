@@ -186,14 +186,112 @@ def read_from_pkl(file_path):
         symbols = pickle.load(pkl_file)
         lr1_table = pickle.load(pkl_file)
 
+from Production import Element, Production
+
+grammar = [
+    Production("Program`", [Element("Program", False)]),
+    Production("Program", [Element("PROGRAM", True), Element("ID", True), Element("SubProgram", False)]),
+    Production("SubProgram", [Element("ConstantDeclaration", False), Element("VariableDeclaration", False), Element("Statement", False)]),
+    Production("SubProgram", [Element("ConstantDeclaration", False), Element("Statement", False)]),
+    Production("SubProgram", [Element("VariableDeclaration", False), Element("Statement", False)]),
+    Production("SubProgram", [Element("Statement", False)]),
+    Production("ConstantDeclaration", [Element("CONST", True),  Element("ConstantDefinition", False), Element("NextConstantDefinition", False)]),
+    Production("NextConstantDefinition", [Element("COMMA", True), Element("ConstantDefinition", False), Element("NextConstantDefinition", False)]),
+    Production("NextConstantDefinition", [Element("SEMI", True)]),
+    Production("ConstantDefinition", [Element("ID", True), Element("ASSIGN", True), Element("NUM", True)]),
+    Production("VariableDeclaration", [Element("VAR", True), Element("ID", True), Element("NextID", False)]),
+    Production("NextID", [Element("COMMA", True), Element("ID", True), Element("NextID", False)]),
+    Production("NextID", [Element("SEMI", True)]),
+    Production("CompoundStatement", [Element("BEGIN", True), Element("Statement", False), Element("NextStatement", False)]),
+    Production("NextStatement", [
+        Element("SEMI", True),
+        Element("M", False),
+        Element("Statement", False),
+        Element("NextStatement", False)
+    ]),
+    Production("NextStatement", [Element("END", True)]),
+    Production("Statement", [Element("AssignmentStatement", False)]),
+    Production("Statement", [Element("ConditionStatement", False)]),
+    Production("Statement", [Element("LoopStatement", False)]),
+    Production("Statement", [Element("CompoundStatement", False)]),
+    Production("Statement", [Element("EmptyStatement", False)]),
+    Production("AssignmentStatement", [
+        Element("Identifier", False),
+        Element("ASSIGN", True),
+        Element("Expression", False)
+    ]),
+    Production("Expression", [Element("PLUS", True), Element("Term", False)]),
+    Production("Expression", [Element("MINUS", True), Element("Term", False)]),
+    Production("Expression", [Element("Term", False)]),
+    Production("Expression", [
+        Element("Expression", False),
+        Element("PLUS", True),
+        Element("Term", False)
+    ]),
+    Production("Expression", [
+        Element("Expression", False),
+        Element("MINUS", True),
+        Element("Term", False)
+    ]),
+    Production("Term", [Element("Factor", False)]),
+    Production("Term", [
+        Element("Term", False),
+        Element("TIMES", True),
+        Element("Factor", False)
+    ]),
+    Production("Term", [
+        Element("Term", False),
+        Element("DIV", True),
+        Element("Factor", False)
+    ]),
+    Production("Factor", [Element("Identifier", False)]),
+    Production("Factor", [Element("NUM", True)]),
+    Production("Factor", [
+        Element("LPAREN", True),
+        Element("Expression", False),
+        Element("RPAREN", True)
+    ]),
+    Production("ConditionStatement", [
+        Element("IF", True),
+        Element("Condition", False),
+        Element("THEN", True),
+        Element("M", False),
+        Element("Statement", False)
+    ]),
+    Production("M", [Element("EPSILON", True)]),
+    Production("LoopStatement", [
+        Element("WHILE", True),
+        Element("M", False),
+        Element("Condition", False),
+        Element("DO", True),
+        Element("M", False),
+        Element("Statement", False)
+    ]),
+    Production("Condition", [
+        Element("Expression", False),
+        Element("RelationalOperator", False),
+        Element("Expression", False)
+    ]),
+    Production("RelationalOperator", [Element("EQUAL", True)]),
+    Production("RelationalOperator", [Element("NEQ", True)]),
+    Production("RelationalOperator", [Element("LT", True)]),
+    Production("RelationalOperator", [Element("LE", True)]),
+    Production("RelationalOperator", [Element("GT", True)]),
+    Production("RelationalOperator", [Element("GE", True)]),
+    Production("EmptyStatement", [Element("EPSILON", True)]),
+    Production("Identifier", [Element("ID", True)])
+]
+
 import re
-def test_grammer(words):
+def test_grammer_words(words):
     global symbols, lr1_table
     read_from_pkl('LR1.pkl')
 
     state_record = []
     word_record = []
+    # 状态栈
     state_record.append(0)
+    # 符号栈
     word_record.append("TERMINAL")
 
     index = 0
@@ -204,7 +302,7 @@ def test_grammer(words):
 
         it = len(prep) - 1
         while it >= 0:
-            print(prep[it], ' ')
+            print(prep[it])
             word_record.append(prep[it])
             it -= 1
 
@@ -224,10 +322,11 @@ def test_grammer(words):
         if action.startswith('s'):
             state_record.append(num)
             word_record.append(words[index])
-            print(f'shift {words} to {num}')
+            print(f'shift {words[index]} to {num}')
         elif action.startswith('r'):
             # get the Number num production
-            production = get_production[num]
+            production = grammar[num]
+            # print(f'reduce produciton {production}')
             left = production.left
             reduce_length = len(production.right)
             if reduce_length == 1 and production.right[0].word == 'EPSILON':
@@ -236,12 +335,14 @@ def test_grammer(words):
                 state_record.pop()
                 word_record.pop()
             new_top = state_record[-1]
-            new_action = lr1_table[new_top].get(words[index])
+            new_action = lr1_table[new_top].get(left)
+            # print(f'new action {new_action}')
             new_match = re.search(r'\d+', new_action)
-            new_num = int(match.group())
+            new_num = int(new_match.group())
+            # print(f'new num {new_num}')
             state_record.append(new_num)
-            word_record.append(words[index])
-            print(f'reduce with Number {num} production to {state_record[-1]}')
+            word_record.append(left)
+            print(f'reduce with {production} to state {state_record[-1]}')
             index -= 1
         elif action.startswith('acc'):
             print('reduce successfully')
@@ -249,10 +350,12 @@ def test_grammer(words):
 
         index += 1
             
-        
-
+def test_grammer():
+    words = ['PROGRAM', 'ID', 'CONST', 'ID', 'ASSIGN', 'NUM', 'SEMI', 'VAR', 'ID', 'COMMA', 'ID', 'COMMA', 'ID', 'SEMI', 'BEGIN', 'ID', 'ASSIGN', 'NUM', 'SEMI', 'ID', 'ASSIGN', 'NUM', 'SEMI', 'ID', 'ASSIGN', 'NUM', 'SEMI', 'WHILE', 'M', 'ID', 'LT', 'NUM', 'DO', 'M', 'ID', 'ASSIGN', 'ID', 'PLUS', 'ID', 'SEMI', 'IF', 'ID', 'NEQ', 'NUM', 'THEN', 'M', 'ID', 'ASSIGN', 'ID', 'MINUS', 'NUM', 'SEMI', 'IF', 'ID', 'LE', 'NUM', 'THEN', 'M', 'ID', 'ASSIGN', 'NUM', 'SEMI', 'IF', 'ID', 'GE', 'NUM', 'THEN', 'M', 'ID', 'ASSIGN', 'ID', 'PLUS', 'ID', 'MINUS', 'LPAREN', 'ID', 'TIMES', 'ID', 'DIV', 'ID', 'RPAREN', 'SEMI', 'ID', 'ASSIGN', 'ID', 'PLUS', 'ID', 'SEMI', 'END']
+    test_grammer_words(words)
         
 
 if __name__ == '__main__':
     # index = 0
     # test()
+    test_grammer()
