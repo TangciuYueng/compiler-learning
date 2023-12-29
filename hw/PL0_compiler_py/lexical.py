@@ -127,10 +127,10 @@ src = (
         "   x1 := 1;\n"
         "   y := 2;\n"
         "   helloworld := 65536;\n"
-        "   WHILE x1<5 DO x := x1+ (helloworld+2);\n"
+        "   WHILE x1<5 DO x1 := x1+ (helloworld+2);\n"
         "   IF y <> 0 THEN y := y- (y+x1);\n"
-        "   IF x1 <= 200 THEN x := 100;\n"
-        "   IF x1 >= 200 THEN y := x + y - (x2*y1/helloworld);\n"
+        "   IF x1 <= 200 THEN x1 := 100;\n"
+        "   IF x1 >= 200 THEN y := x1 + y - (x1*y/helloworld);\n"
         "   y := y + x1;\n"
         "END\n"
     )
@@ -308,17 +308,17 @@ def visit_constant_definition(node, word_record):
 def visit_variable_declaration(node, word_record):
     # VariableDeclaration -> VAR ID NextID
     if node[1] in existing_symbols:
-        error(f'{node[1]} has been declared')
+        error(f'{node[1][0]} has been declared')
     else:
-        existing_symbols[node[1]] = TokenType.VAR
+        existing_symbols[node[1][0]] = TokenType.VAR
 
 
 def visit_next_id(node, word_record):
     # NextID -> COMMA ID NextID
     if node[1][0] in existing_symbols:
-        error(f'{node[1]} has been declared')
+        error(f'{node[1][0]} has been declared')
     else:
-        existing_symbols[node[1]] = TokenType.VAR
+        existing_symbols[node[1][0]] = TokenType.VAR
 
 def visit_compound_statement(node, word_record):
     # CompoundStatement -> BEGIN LastStatement Statement END
@@ -390,6 +390,8 @@ def visit_statement_empty(node, word_record):
 
 def visit_assignment_statement(node, word_record):
     # AssignmentStatement -> Identifier ASSIGN Expression
+    if node[0] not in existing_symbols:
+        error(f'{node[0]} has not been declared!')
     cnt = mid_code_counter.get_mid_code_counter()
     mid_codes[cnt] = f'{node[0]} := {node[2]}'
 
@@ -459,6 +461,8 @@ def visit_term_t_d_f(node, word_record):
 
 def visit_factor_i(node, word_record):
     # Factor -> Identifier
+    if node[0] not in existing_symbols:
+        error(f'{node[0]} has not been declared!')
     word_record.pop()
     word_record.append(node[0])
 
@@ -798,7 +802,7 @@ def compiler(src, file_path):
             break
             
     show_mid_codes(mid_codes)
-    write_mid_codes_to_file(mid_codes, './mid_codes.txt')
+    # write_mid_codes_to_file(mid_codes, './mid_codes.txt')
 
 def test_grammer():
     words = ['PROGRAM', 'ID', 'CONST', 'ID', 'ASSIGN', 'NUM', 'SEMI', 'VAR', 'ID', 'COMMA', 'ID', 'COMMA', 'ID', 'SEMI', 'BEGIN', 'ID', 'ASSIGN', 'NUM', 'SEMI', 'ID', 'ASSIGN', 'NUM', 'SEMI', 'ID', 'ASSIGN', 'NUM', 'SEMI', 'WHILE', 'M', 'ID', 'LT', 'NUM', 'DO', 'M', 'ID', 'ASSIGN', 'ID', 'PLUS', 'ID', 'SEMI', 'IF', 'ID', 'NEQ', 'NUM', 'THEN', 'M', 'ID', 'ASSIGN', 'ID', 'MINUS', 'NUM', 'SEMI', 'IF', 'ID', 'LE', 'NUM', 'THEN', 'M', 'ID', 'ASSIGN', 'NUM', 'SEMI', 'IF', 'ID', 'GE', 'NUM', 'THEN', 'M', 'ID', 'ASSIGN', 'ID', 'PLUS', 'ID', 'MINUS', 'LPAREN', 'ID', 'TIMES', 'ID', 'DIV', 'ID', 'RPAREN', 'SEMI', 'ID', 'ASSIGN', 'ID', 'PLUS', 'ID', 'SEMI', 'END', 'TERMINAL']
