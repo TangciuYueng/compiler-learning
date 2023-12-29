@@ -133,8 +133,11 @@ int main() {
 	for (int i = 0; i < methodCount; i++)
 	{
 		string origin = regulars[i];
+		cout << regulars[i] << endl;
 		RegularCalculator::PostfixPrep(regulars[i]);  //预处理
+		cout << regulars[i] << endl;
 		RegularCalculator::Postfix(regulars[i]);      //转成后缀表达式
+		cout << regulars[i] << endl;
 		ResetBracket(regulars[i]);                    //把方括号换回圆括号
 		RegularCalculator::Calculation(regulars[i] += '#', nfas[i]);  //加上结束符，构建NFA
 
@@ -169,9 +172,9 @@ int main() {
 	dfa.ShowStateTransTable();   //打印状态转移矩阵
 	//dfa.Simplify();
 
-	ofstream out = ofstream("C:/Users/CHEMISTRYMASTER/Desktop/DFA.csv");  //将DFA状态转移信息写入文件
-	dfa.WriteStateTransTable(out);
-	out.close();
+	//ofstream out = ofstream("C:/Users/CHEMISTRYMASTER/Desktop/DFA.csv");  //将DFA状态转移信息写入文件
+	//dfa.WriteStateTransTable(out);
+	//out.close();
 
 	/*
 		书写规则：
@@ -211,8 +214,10 @@ int main() {
 	
 	//dfa.LexicalAnalysis(program, regularDescriptionMap);  //进行词法分析
 	
-	//ofstream out("C:/Users/CHEMISTRYMASTER/Desktop/result.txt");
-	//dfa.WriteLexicalAnalysis(program, out, regularDescriptionMap);
+	ofstream out("C:/Users/CHEMISTRYMASTER/Desktop/result.txt");
+	dfa.WriteLexicalAnalysis(program, out, regularDescriptionMap);
+	dfa.PrintEndMap();
+	dfa.PrintEndList();
 	
 	return 0;
 }

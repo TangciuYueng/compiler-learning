@@ -546,4 +546,24 @@ namespace automat {
 		out << "TERMINAL" << endl;  //添加起始符，方便语法分析
 		return true;
 	}
+
+	void DFA::PrintEndMap()const {
+		auto iter = this->endMap.begin();
+
+		while (iter != this->endMap.end()) {
+			cout << iter->first << " --> " << iter->second << endl;
+			iter++;
+		}
+	}
+
+	void DFA::PrintEndList()const {
+		auto iter = this->endList.begin();
+
+		while (iter != this->endList.end()) {
+			cout << *iter << ' ';
+			iter++;
+		}
+
+		cout << endl;
+	}
 }

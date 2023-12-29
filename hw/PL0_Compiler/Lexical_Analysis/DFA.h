@@ -47,6 +47,8 @@ namespace automat {
 		void WriteStateTransTable(ofstream& out);
 		bool LexicalAnalysis(string input, map<string, string>& regularDescriptionMap);
 		bool WriteLexicalAnalysis(string input, ofstream& out, map<string, string>& regularDescriptionMap);
+		void PrintEndMap()const;
+		void PrintEndList()const;
 	};
 }
 

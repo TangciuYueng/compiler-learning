@@ -40,6 +40,21 @@ int main() {
 		"TERMINAL"
 	};
 
+	/*const set<string> terminals = {
+		"+",
+		"*",
+		"(",
+		")",
+		"id"
+	};*/
+
+	/*const set<string> nonterminals = {
+		"S",
+		"E",
+		"T",
+		"F"
+	};*/
+
 	//非终结符表
 	const set<string> nonterminals = {
 		"Program`",
@@ -65,6 +80,8 @@ int main() {
 		"M",
 		"RelationalOperator"
 	};
+
+
 
 	//文法
 	const vector<Production> grammar = {
@@ -231,6 +248,37 @@ int main() {
 			{ Element("ID", true)}
 		)
 	};
+
+	//const vector<Production> grammar = {
+	//	Production(
+	//		"S",
+	//		{ Element("E", false) }
+	//	),  //LR分析时添加的产生式
+	//	Production(
+	//		"E",
+	//		{ Element("E", false), Element("+", true), Element("T", false) }
+	//	),  //LR分析时添加的产生式
+	//	Production(
+	//		"E",
+	//		{ Element("T", false) }
+	//	),  //LR分析时添加的产生式
+	//	Production(
+	//		"T",
+	//		{ Element("T", false), Element("*", true), Element("F", false) }
+	//	),  //LR分析时添加的产生式
+	//	Production(
+	//		"T",
+	//		{ Element("F", false) }
+	//	),  //LR分析时添加的产生式
+	//	Production(
+	//		"F",
+	//		{ Element("(", true), Element("E", false), Element(")", true) }
+	//	),  //LR分析时添加的产生式
+	//	Production(
+	//		"F",
+	//		{ Element("id", true) }
+	//	),  //LR分析时添加的产生式
+	//};
 
 	//构造DFA
 	DFA dfa = DFA(grammar, terminals, nonterminals, grammar[0].left);

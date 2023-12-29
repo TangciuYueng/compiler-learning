@@ -350,7 +350,7 @@ namespace grammar {
 				//状态在当前DFA中不存在
 				else {
 					state.num = existList.size();         //给状态编号
-					cout << "新状态：" << state.num << endl;
+					cout << "新状态：" << state.num << endl << state;
 					existList.emplace(state.productions, state.num);  //将新状态进行记录
 					openlist.push(state);                 //将新状态加入扩展列表
 					this->tableLR1.push_back(map<string, set<Trans>>());  //LR(1)分析表新增一行
