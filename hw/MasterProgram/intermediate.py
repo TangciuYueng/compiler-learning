@@ -11,8 +11,32 @@ next_lists = {}
 existing_symbols = {}
 
 
+def reset():
+    global temp_var_counter, mid_code_counter, condition_counter, next_counter, mid_codes, true_lists, false_lists,\
+        next_lists, existing_symbols
+
+    temp_var_counter = TempVarCounter()
+    mid_code_counter = MidCodeCounter(100)
+    condition_counter = ConditionCounter()
+    next_counter = NextCounter()
+    mid_codes = {}
+    true_lists = {}
+    false_lists = {}
+    next_lists = {}
+    existing_symbols = {}
+
+
+def get_mid_codes():
+    ret = ""
+
+    for num, mid_code in mid_codes.items():
+        ret += f'{num}: {mid_code}\n'
+
+    return ret
+
+
 def error(message):
-    raise ValueError(f"Lexical error: {message}")
+    raise ValueError(f"Intermediate error: {message}")
 
 
 def visit_constant_definition(node, word_record):
@@ -28,17 +52,17 @@ def visit_constant_definition(node, word_record):
 def visit_variable_declaration(node, word_record):
     # VariableDeclaration -> VAR ID NextID
     if node[1] in existing_symbols:
-        error(f'{node[1]} has been declared')
+        error(f'{node[1][0]} has been declared')
     else:
-        existing_symbols[node[1]] = "VAR"
+        existing_symbols[node[1][0]] = "VAR"
 
 
 def visit_next_id(node, word_record):
     # NextID -> COMMA ID NextID
     if node[1][0] in existing_symbols:
-        error(f'{node[1]} has been declared')
+        error(f'{node[1][0]} has been declared')
     else:
-        existing_symbols[node[1]] = "VAR"
+        existing_symbols[node[1][0]] = "VAR"
 
 
 def visit_compound_statement(node, word_record):
@@ -119,6 +143,9 @@ def visit_statement_empty(node, word_record):
 
 def visit_assignment_statement(node, word_record):
     # AssignmentStatement -> Identifier ASSIGN Expression
+    if node[0] not in existing_symbols:
+        error(f'{node[0]} has not been declared!')
+
     cnt = mid_code_counter.get_mid_code_counter()
     mid_codes[cnt] = f'{node[0]} := {node[2]}'
 
@@ -197,6 +224,9 @@ def visit_term_t_d_f(node, word_record):
 
 def visit_factor_i(node, word_record):
     # Factor -> Identifier
+    if node[0] not in existing_symbols:
+        error(f'{node[0]} has not been declared!')
+
     word_record.pop()
     word_record.append(node[0])
 

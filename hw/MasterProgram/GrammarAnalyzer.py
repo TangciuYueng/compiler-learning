@@ -13,6 +13,9 @@ class GrammarAnalyzer:
             self.state_record = [0]
             self.word_record = [('#', 'TERMINAL')]
 
+    def error(self, message):
+        raise SyntaxError(f"Grammar Error: {message}")
+
     def reduce_production(self, num):
         production = grammar[num]
         left = production.left
@@ -37,12 +40,12 @@ class GrammarAnalyzer:
         if visit_functions[num]:
             visit_functions[num](right, self.word_record)
 
-    def analyze_once(self, word, element):
+    def analyze_once(self, word, element, line):
         top = self.state_record[-1]
         action = self.lr1_table[top].get(element)
 
         if not action:
-            return False, False, None
+            self.error(f"word \"{word}\" at line {line}")
 
         match = re.search(r'\d+', action)  # 匹配r开头的动作，即规约动作
         num = None

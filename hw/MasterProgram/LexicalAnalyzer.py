@@ -43,6 +43,10 @@ class LexicalAnalyzer:
             self.analyze_current_state = 0
             self.analyze_word = ""
             self.analyze_index = 0
+            self.analyze_line = 1
+
+    def error(self, message):
+        raise SyntaxError(f"Lexical Error: {message}")
 
     def get_index(self):
         return self.analyze_index
@@ -50,17 +54,19 @@ class LexicalAnalyzer:
     def analyze_once(self, ch):
         if ch == '#':
             self.analyze_index += 1
-            return '#', "TERMINAL", True
+            return '#', "TERMINAL", self.analyze_line
 
         if ch in [' ', '\n', '\r', '\t']:
+            if ch == '\n':
+                self.analyze_line += 1
+
             if not self.analyze_stack:
                 self.analyze_index += 1
-                return None, None, True
+                return None, None, self.analyze_line
 
             while self.analyze_current_state not in self.end_list:
                 if not self.analyze_stack:
-                    print("a")
-                    return None, None, False
+                    self.error(f"character \'{ch}\' at line {self.analyze_line}")
 
                 self.analyze_current_state = self.analyze_stack.pop()
                 self.analyze_index -= 1
@@ -72,24 +78,21 @@ class LexicalAnalyzer:
             self.analyze_stack.clear()
             self.analyze_current_state = 0
             self.analyze_index += 1
-            return word, regular_description_map[self.end_map[state]], True
+            return word, regular_description_map[self.end_map[state]], self.analyze_line
 
         else:
             if ch not in self.tokens:
-                print('B')
-                return None, None, False
+                self.error(f"character \'{ch}\' at line {self.analyze_line}")
 
             next_state = self.state_trans_table[self.analyze_current_state][self.tokens.index(ch) + 1]
 
             if next_state == -2:
                 if not self.analyze_stack:
-                    print("c")
-                    return None, None, False
+                    self.error(f"character \'{ch}\' at line {self.analyze_line}")
 
                 while self.analyze_current_state not in self.end_list:
                     if not self.analyze_stack:
-                        print('d')
-                        return None, None, False
+                        self.error(f"character \'{ch}\' at line {self.analyze_line}")
 
                     self.analyze_current_state = self.analyze_stack.pop()
                     self.analyze_index -= 1
@@ -100,10 +103,10 @@ class LexicalAnalyzer:
                 self.analyze_word = ""
                 self.analyze_stack.clear()
                 self.analyze_current_state = 0
-                return word, regular_description_map[self.end_map[state]], True
+                return word, regular_description_map[self.end_map[state]], self.analyze_line
             else:
                 self.analyze_current_state = next_state
                 self.analyze_word += ch
                 self.analyze_stack.append(self.analyze_current_state)
                 self.analyze_index += 1
-                return None, None, True
+                return None, None, self.analyze_line
