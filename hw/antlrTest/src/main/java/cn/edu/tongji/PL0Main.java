@@ -11,6 +11,7 @@ import java.nio.file.Paths;
 import java.nio.file.Path;
 
 public class PL0Main {
+
     public static void main(String[] args) throws IOException {
         Path filePath = Paths.get("PL0SourceCode.txt");
 

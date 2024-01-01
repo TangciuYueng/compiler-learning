@@ -334,10 +334,6 @@ public class PL0VisitorImpl extends PL0BaseVisitor<String> {
         } catch (IOException e) {
             throw new RuntimeException("Error writing to file", e);
         }
-//
-//        for (Map.Entry<String, String> entry: symbolTable.entrySet()) {
-//            System.out.println(entry.getKey() + ": " + entry.getValue());
-//        }
 
     }
 }
