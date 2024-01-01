@@ -6,18 +6,18 @@ import java.nio.file.Paths;
 import java.util.*;
 
 public class PL0VisitorImpl extends PL0BaseVisitor<String> {
-    private static String FILE_PATH = "midCodes.txt";
-    private static String CONST = "const";
-    private static String VAR = "var";
+    private static final String FILE_PATH = "midCodes.txt";
+    private static final String CONST = "const";
+    private static final String VAR = "var";
     private int tempVarCounter = 0;
     private int conditionCounter = 0;
     private int nextCounter = 0;
     private int midCodeCounter = 100;
-    private Map<Integer, String> midCodes = new HashMap<>();
-    private Map<Integer, List<Integer>> trueLists = new HashMap<>();
-    private Map<Integer, List<Integer>> falseLists = new HashMap<>();
-    private Map<Integer, List<Integer>> nextLists = new HashMap<>();
-    private Map<String, String> symbolTable = new HashMap<>();
+    private final Map<Integer, String> midCodes = new HashMap<>();
+    private final Map<Integer, List<Integer>> trueLists = new HashMap<>();
+    private final Map<Integer, List<Integer>> falseLists = new HashMap<>();
+    private final Map<Integer, List<Integer>> nextLists = new HashMap<>();
+    private final Map<String, String> symbolTable = new HashMap<>();
     private String newTempVar() {
         return "t" + tempVarCounter++;
     }
