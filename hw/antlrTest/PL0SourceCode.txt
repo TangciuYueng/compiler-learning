@@ -1,6 +1,6 @@
 PROGRAM xxx
 CONST a := 23, b:= 9;
-VAR set, abc, set;
+VAR set, abc;
 BEGIN
 	set:=1;
 	a := (23 + 1) * set;

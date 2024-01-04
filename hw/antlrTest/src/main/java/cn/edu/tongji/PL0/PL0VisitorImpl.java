@@ -93,7 +93,7 @@ public class PL0VisitorImpl extends PL0BaseVisitor<String> {
             String res = newTempVar();
 
             // 打印中间代码
-            midCodes.put(getMidCodeCounter(), res + " = " + left + " " + op + " " + right);
+            midCodes.put(getMidCodeCounter(), res + " := " + left + " " + op + " " + right);
             return res;
         } else {
             // (PLUS | MINUS)? term情况
