@@ -168,7 +168,7 @@ public class PL0VisitorImpl extends PL0BaseVisitor<String> {
         }
     }
 
-//对项的访问，并生成相应的中间代码
+    //对项的访问，并生成相应的中间代码
     @Override
     public String visitTerm(PL0Parser.TermContext ctx) {
         var term = ctx.term();
@@ -215,7 +215,7 @@ public class PL0VisitorImpl extends PL0BaseVisitor<String> {
     }
 
 
-//对条件语句的访问，并生成相应的中间代码
+    //对条件语句的访问，并生成相应的中间代码
     @Override
     public String visitCondition(PL0Parser.ConditionContext ctx) {
         // 获取条件语句中的左表达式，并递归调用 visit 方法获取其值
@@ -436,7 +436,7 @@ public class PL0VisitorImpl extends PL0BaseVisitor<String> {
         }
     }
 
-        //实现了 PL/0 语言中的一些辅助功能：
+    //实现了 PL/0 语言中的一些辅助功能：
     @Override
     public String visitM(PL0Parser.MContext ctx) {
         return String.valueOf(midCodeCounter);

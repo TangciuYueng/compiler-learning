@@ -39,7 +39,7 @@ WS : [ \t\r\n]+ -> skip;
 
 // <程序> -> <程序首部> <分程序>
 // <程序首部> -> PROGRAM <标识符>
-program : PROGRAM ID subprogram ;
+program : PROGRAM ID subprogram EOF;
 // <分程序> -> [<常量说明>][<变量说明>]<语句>
 subprogram : constantDeclaration? variableDeclaration? statement ;
 // <常量说明> -> CONST <常量定义> {,<常量定义>};

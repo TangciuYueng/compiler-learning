@@ -1,4 +1,3 @@
-// Generated from E:/xx/±‡“Î‘≠¿Ì/hw/antlrTest/src/main/java/cn/edu/tongji/PL0.g4 by ANTLR 4.13.1
 package cn.edu.tongji.PL0;
 import org.antlr.v4.runtime.tree.ParseTreeListener;
 
