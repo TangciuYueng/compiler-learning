@@ -34,7 +34,7 @@ public class PL0Main {
 
             System.out.println("finished!");
         } catch (Exception e) {
-            System.out.println("词法错误 " + e.getMessage());
+            System.out.println("语法错误 " + e.getMessage());
         }
 
     }
