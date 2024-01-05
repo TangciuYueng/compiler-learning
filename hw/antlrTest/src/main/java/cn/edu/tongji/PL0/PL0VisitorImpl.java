@@ -106,50 +106,49 @@ public class PL0VisitorImpl extends PL0BaseVisitor<String> {
     }
 
 //对表达式的访问，并生成相应的中间代码。
-@Override
-public String visitExpression(PL0Parser.ExpressionContext ctx) {
-    var expr = ctx.expression();
-    String op;
-    var minus = ctx.MINUS();
-    if (expr != null) {
-        // 表达式形式为 expression (PLUS|MINUS) term
-        // 判断符号
-        op = (minus != null) ? "-" : "+";
+    @Override
+    public String visitExpression(PL0Parser.ExpressionContext ctx) {
+        var expr = ctx.expression();
+        String op;
+        var minus = ctx.MINUS();
+        if (expr != null) {
+            // 表达式形式为 expression (PLUS|MINUS) term
+            // 判断符号
+            op = (minus != null) ? "-" : "+";
 
-        // 递归调用，访问左侧表达式
-        String left = visit(expr);
+            // 递归调用，访问左侧表达式
+            String left = visit(expr);
 
-        // 访问右侧term表达式
-        String right = visit(ctx.term());
+            // 访问右侧term表达式
+            String right = visit(ctx.term());
 
-        // 生成新的临时变量名
-        String res = newTempVar();
-
-        // 生成中间代码：res = left op right
-        midCodes.put(getMidCodeCounter(), res + " = " + left + " " + op + " " + right);
-
-        // 返回临时变量名
-        return res;
-    } else {
-        // 表达式形式为 (PLUS | MINUS)? term
-        String term = visit(ctx.term());
-        op = (minus != null) ? minus.getText() : (ctx.PLUS() != null ? ctx.PLUS().getText() : "");
-
-        if (!op.isEmpty()) {
-            // 存在符号操作，生成新的临时变量名
+            // 生成新的临时变量名
             String res = newTempVar();
 
-            // 生成中间代码：res := op term
-            midCodes.put(getMidCodeCounter(), res + " := " + left + " " + op + " " + right);
+            // 生成中间代码：res = left op right
+            midCodes.put(getMidCodeCounter(), res + " = " + left + " " + op + " " + right);
 
             // 返回临时变量名
             return res;
         } else {
-            // 没有符号操作，直接返回term
-            return term;
+            // 表达式形式为 (PLUS | MINUS)? term
+            String term = visit(ctx.term());
+            op = (minus != null) ? minus.getText() : (ctx.PLUS() != null ? ctx.PLUS().getText() : "");
+
+            if (!op.isEmpty()) {
+                // 存在符号操作，生成新的临时变量名
+                String res = newTempVar();
+
+                midCodes.put(getMidCodeCounter(), res + " = " + op + " " + term);
+
+                // 返回临时变量名
+                return res;
+            } else {
+                // 没有符号操作，直接返回term
+                return term;
+            }
         }
     }
-}
 
 //对项的访问，并生成相应的中间代码
     @Override
