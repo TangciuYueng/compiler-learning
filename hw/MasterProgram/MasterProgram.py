@@ -96,14 +96,19 @@ def pl0_compile():
 
     while lexical_analyzer.get_index() < len(input_program):
         try:
-            word, element, line = lexical_analyzer.analyze_once(input_program[lexical_analyzer.get_index()])
+            word, element, if_next_line = \
+                lexical_analyzer.analyze_once(input_program[lexical_analyzer.get_index()], line)
         except SyntaxError as e:
             error_operations(str(e))
             return
 
         if word is not None:
             try:
-                if_grammar_continue, if_next_word, reduce_num = grammar_analyzer.analyze_once(word, element, line)
+                if_grammar_continue, if_next_word, reduce_num = \
+                    grammar_analyzer.analyze_once(word, element, line)
+            except ValueError as e:
+                error_operations(str(e))
+                return
             except SyntaxError as e:
                 error_operations(str(e))
                 return
@@ -134,6 +139,9 @@ def pl0_compile():
                         else:
                             message += "Grammar Analysis Failed\n"  # 语法错误
                         break
+
+        if if_next_line:
+            line += 1
 
 
 class MyMainWindow(QMainWindow, Ui_MainWindow):

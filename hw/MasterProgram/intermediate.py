@@ -41,8 +41,8 @@ def error(message):
 
 def visit_constant_definition(node, word_record):
     # ConstantDefinition -> ID ASSIGN NUM
-    if node[0] in existing_symbols:
-        error(f'{node[0][0]} has been declared')
+    if node[0][0] in existing_symbols:
+        error(f'redefined constant \"{node[0][0]}\"')
     else:
         existing_symbols[node[0][0]] = "CONST"
     cnt = mid_code_counter.get_mid_code_counter()
@@ -51,8 +51,8 @@ def visit_constant_definition(node, word_record):
 
 def visit_variable_declaration(node, word_record):
     # VariableDeclaration -> VAR ID NextID
-    if node[1] in existing_symbols:
-        error(f'{node[1][0]} has been declared')
+    if node[1][0] in existing_symbols:
+        error(f'redefined variable: \"{node[1][0]}\"')
     else:
         existing_symbols[node[1][0]] = "VAR"
 
@@ -60,7 +60,7 @@ def visit_variable_declaration(node, word_record):
 def visit_next_id(node, word_record):
     # NextID -> COMMA ID NextID
     if node[1][0] in existing_symbols:
-        error(f'{node[1][0]} has been declared')
+        error(f'redefined variable: \"{node[1][0]}\"')
     else:
         existing_symbols[node[1][0]] = "VAR"
 
@@ -144,7 +144,9 @@ def visit_statement_empty(node, word_record):
 def visit_assignment_statement(node, word_record):
     # AssignmentStatement -> Identifier ASSIGN Expression
     if node[0] not in existing_symbols:
-        error(f'{node[0]} has not been declared!')
+        error(f'undeclared symbol: \"{node[0]}\"')
+    elif existing_symbols[node[0]] == "CONST":
+        error(f'trying to assign constant \"{node[0]}\"')
 
     cnt = mid_code_counter.get_mid_code_counter()
     mid_codes[cnt] = f'{node[0]} := {node[2]}'
@@ -160,7 +162,7 @@ def visit_expression_plus_term(node, word_record):
     # Expression -> PLUS Term
     res = temp_var_counter.new_temp_var()
     cnt = mid_code_counter.get_mid_code_counter()
-    mid_codes[cnt] = f'{res} = {node[1]}'
+    mid_codes[cnt] = f'{res} := {node[1]}'
     word_record.pop()
     word_record.append(res)
 
@@ -169,7 +171,7 @@ def visit_expression_minus_term(node, word_record):
     # Expression -> MINUS Term
     res = temp_var_counter.new_temp_var()
     cnt = mid_code_counter.get_mid_code_counter()
-    mid_codes[cnt] = f'{res} = - {node[1]}'
+    mid_codes[cnt] = f'{res} := - {node[1]}'
     word_record.pop()
     word_record.append(res)
 
@@ -184,7 +186,7 @@ def visit_expression_e_p_t(node, word_record):
     # Expression -> Expression PLUS Term
     res = temp_var_counter.new_temp_var()
     cnt = mid_code_counter.get_mid_code_counter()
-    mid_codes[cnt] = f'{res} = {node[0]} + {node[2]}'
+    mid_codes[cnt] = f'{res} := {node[0]} + {node[2]}'
     word_record.pop()
     word_record.append(res)
 
@@ -193,7 +195,7 @@ def visit_expression_e_m_t(node, word_record):
     # Expression -> Expression MINUS Term
     res = temp_var_counter.new_temp_var()
     cnt = mid_code_counter.get_mid_code_counter()
-    mid_codes[cnt] = f'{res} = {node[0]} - {node[2]}'
+    mid_codes[cnt] = f'{res} := {node[0]} - {node[2]}'
     word_record.pop()
     word_record.append(res)
 
@@ -208,7 +210,7 @@ def visit_term_t_t_f(node, word_record):
     # Term -> Term TIMES Factor
     res = temp_var_counter.new_temp_var()
     cnt = mid_code_counter.get_mid_code_counter()
-    mid_codes[cnt] = f'{res} = {node[0]} * {node[2]}'
+    mid_codes[cnt] = f'{res} := {node[0]} * {node[2]}'
     word_record.pop()
     word_record.append(res)
 
@@ -217,7 +219,7 @@ def visit_term_t_d_f(node, word_record):
     # Term -> Term DIV Factor
     res = temp_var_counter.new_temp_var()
     cnt = mid_code_counter.get_mid_code_counter()
-    mid_codes[cnt] = f'{res} = {node[0]} / {node[2]}'
+    mid_codes[cnt] = f'{res} := {node[0]} / {node[2]}'
     word_record.pop()
     word_record.append(res)
 
@@ -225,7 +227,7 @@ def visit_term_t_d_f(node, word_record):
 def visit_factor_i(node, word_record):
     # Factor -> Identifier
     if node[0] not in existing_symbols:
-        error(f'{node[0]} has not been declared!')
+        error(f'undeclared symbol: \"{node[0]}\"')
 
     word_record.pop()
     word_record.append(node[0])
