@@ -14,7 +14,6 @@ public class PL0VisitorImpl extends PL0BaseVisitor<String> {
 
     //计数器，用于生成临时变量的编号。
     private int tempVarCounter = 0;
-
     //计数器，用于生成条件和跳转语句的标签。
     private int conditionCounter = 0;
     private int nextCounter = 0;
@@ -51,11 +50,19 @@ public class PL0VisitorImpl extends PL0BaseVisitor<String> {
     public String visitAssignmentStatement(PL0Parser.AssignmentStatementContext ctx) {
         //通过 visit(ctx.identifier()) 访问赋值语句中的标识符，获取标识符的值，并将其存储在 id 变量中。
         String id = visit(ctx.identifier());
+        // 未定义
+        if (id == null) {
+            return null;
+        }
         if (symbolTable.get(id) == "const") {
             System.out.println(id + "为常量");
+            System.exit(1);
         }
         //通过 visit(ctx.expression()) 访问赋值语句中的表达式，获取表达式的值，并将其存储在 expr 变量中。
         String expr = visit(ctx.expression());
+        if (expr == null) {
+            return null;
+        }
         //调用 getMidCodeCounter() 方法生成一个新的中间代码编号 cnt，并将 id + " := " + expr 存储在 midCodes 映射表中，表示赋值语句的中间代码。
         int cnt = getMidCodeCounter();
         midCodes.put(cnt, id + " := " + expr);
@@ -74,6 +81,7 @@ public class PL0VisitorImpl extends PL0BaseVisitor<String> {
         // 检查符号表中是否已经存在该标识符
         if (symbolTable.containsKey(id)) {
             System.out.println(id + "已声明");
+            System.exit(1);
         } else {
             // 如果不存在，则将其添加到符号表中，值为 CONST
             symbolTable.put(id, CONST);
@@ -99,6 +107,7 @@ public class PL0VisitorImpl extends PL0BaseVisitor<String> {
             // 判断是否已经在符号表中
             if (symbolTable.containsKey(id)) {
                 System.out.println(id + "已经声明");
+                System.exit(1);
             } else {
                 // 如果不存在，则将其添加到符号表中，值为 VAR
                 symbolTable.put(id, VAR);
@@ -124,6 +133,9 @@ public class PL0VisitorImpl extends PL0BaseVisitor<String> {
 
             // 访问右侧term表达式
             String right = visit(ctx.term());
+            if (right == null) {
+                return null;
+            }
 
             // 生成新的临时变量名
             String res = newTempVar();
@@ -136,6 +148,9 @@ public class PL0VisitorImpl extends PL0BaseVisitor<String> {
         } else {
             // 表达式形式为 (PLUS | MINUS)? term
             String term = visit(ctx.term());
+            if (term == null) {
+                return null;
+            }
             op = (minus != null) ? minus.getText() : (ctx.PLUS() != null ? ctx.PLUS().getText() : "");
 
             if (!op.isEmpty()) {
@@ -162,8 +177,14 @@ public class PL0VisitorImpl extends PL0BaseVisitor<String> {
             String op = (ctx.TIMES() != null) ? "*" : "/";
             // 递归调用，访问左侧子项
             String left = visit(term);
+            if (left == null) {
+                return null;
+            }
             // 访问右侧因子
             String right = visit(ctx.factor());
+            if (right == null) {
+                return null;
+            }
             // 生成新的临时变量名
             String res = newTempVar();
             // 生成中间代码：res = left op right
@@ -199,8 +220,14 @@ public class PL0VisitorImpl extends PL0BaseVisitor<String> {
     public String visitCondition(PL0Parser.ConditionContext ctx) {
         // 获取条件语句中的左表达式，并递归调用 visit 方法获取其值
         String left = visit(ctx.expression(0));
+        if (left == null) {
+            return null;
+        }
         // 获取条件语句中的右表达式，并递归调用 visit 方法获取其值
         String right = visit(ctx.expression(1));
+        if (right == null) {
+            return null;
+        }
         // 获取条件语句中的关系运算符，并获取其文本值
         String relop = ctx.relationalOperator().getText();
 
@@ -239,8 +266,17 @@ public class PL0VisitorImpl extends PL0BaseVisitor<String> {
     public String visitConditionStatement(PL0Parser.ConditionStatementContext ctx) {
         // 获取条件和语句对应的索引
         String conditionIndexStr = visit(ctx.condition());
+        if (conditionIndexStr == null) {
+            return null;
+        }
         String entryIndexStr = visit(ctx.m());
+        if (entryIndexStr == null) {
+            return null;
+        }
         String nextIndexStr = visit(ctx.statement());
+        if (nextIndexStr == null) {
+            return null;
+        }
 
         // 将条件和语句对应的索引转换为整数类型
         int conditionIndex = Integer.parseInt(conditionIndexStr);
@@ -277,12 +313,18 @@ public class PL0VisitorImpl extends PL0BaseVisitor<String> {
 
         // 获取 trueList 和 falseList 的索引
         String conditionIndexStr = visit(ctx.condition());
+        if (conditionIndexStr == null) {
+            return null;
+        }
         int conditionIndex = Integer.parseInt(conditionIndexStr);
 
         String m2Str = visit(ctx.m(1));
         int m2Entry = Integer.parseInt(m2Str);
 
         String nextIndexStr = visit(ctx.statement());
+        if (nextIndexStr == null) {
+            return null;
+        }
         int nextIndex = nextIndexStr != null? Integer.parseInt(nextIndexStr): -1;
 
         // M2 to E.trueList
@@ -317,6 +359,9 @@ public class PL0VisitorImpl extends PL0BaseVisitor<String> {
     @Override
     public String visitCompoundStatement(PL0Parser.CompoundStatementContext ctx) {
         String nextIndexStr = visit(ctx.multiStatement());
+        if (nextIndexStr == null) {
+            return null;
+        }
         int nextIndex = nextIndexStr != null? Integer.parseInt(nextIndexStr): -1;
         List<Integer> newNextList = new ArrayList<>(nextLists.getOrDefault(nextIndex, new ArrayList<>()));
 
@@ -332,6 +377,9 @@ public class PL0VisitorImpl extends PL0BaseVisitor<String> {
         var m = ctx.m();
         if (m != null) {
             String nextIndexStr = visit(ctx.multiStatement());
+            if (nextIndexStr == null) {
+                return null;
+            }
             int nextIndex = nextIndexStr != null? Integer.parseInt(nextIndexStr): -1;
 
             String mEntryStr = visit(m);
@@ -347,6 +395,9 @@ public class PL0VisitorImpl extends PL0BaseVisitor<String> {
 
             // L.nextList = S.nextList
             String statementNextIndexStr = visit(ctx.statement());
+            if (statementNextIndexStr == null) {
+                return null;
+            }
             int statementNextIndex = statementNextIndexStr != null? Integer.parseInt(statementNextIndexStr): -1;
 
             int next = getNextCounter();
@@ -356,6 +407,9 @@ public class PL0VisitorImpl extends PL0BaseVisitor<String> {
         } else {
             // 只有一个 statement
             String nextIndexStr = visit(ctx.statement());
+            if (nextIndexStr == null) {
+                return null;
+            }
             int nextIndex = nextIndexStr != null? Integer.parseInt(nextIndexStr): -1;
             List<Integer> newNextList = new ArrayList<>(nextLists.getOrDefault(nextIndex, new ArrayList<>()));
 
@@ -366,7 +420,7 @@ public class PL0VisitorImpl extends PL0BaseVisitor<String> {
         }
     }
 
-    //实现了 PL/0 语言中语句的代码生成
+    //实现了 PL/0 语言中语句的代码生
     @Override
     public String visitStatement(PL0Parser.StatementContext ctx) {
         if (ctx.assignmentStatement() != null) {
@@ -382,7 +436,7 @@ public class PL0VisitorImpl extends PL0BaseVisitor<String> {
         }
     }
 
-    //实现了 PL/0 语言中的一些辅助功能：
+        //实现了 PL/0 语言中的一些辅助功能：
     @Override
     public String visitM(PL0Parser.MContext ctx) {
         return String.valueOf(midCodeCounter);
@@ -393,6 +447,7 @@ public class PL0VisitorImpl extends PL0BaseVisitor<String> {
         String id = ctx.getText();
         if (!symbolTable.containsKey(id)) {
             System.out.println(id + "未声明");
+            System.exit(1);
         }
         return id;
     }

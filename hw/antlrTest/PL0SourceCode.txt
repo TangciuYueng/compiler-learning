@@ -2,9 +2,9 @@ PROGRAM add
 CONST a:=23;
 VAR x,y;
 BEGIN
-x:=1;#
+x:=1;
 y:=2;
-set := 23;
+set := x + y;
 WHILE x<5 DO x:=x+1;
  IF y>0 THEN y:=y-1;
 y:=y+x
