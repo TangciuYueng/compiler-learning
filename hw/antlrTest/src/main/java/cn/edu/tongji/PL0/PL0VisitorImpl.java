@@ -51,6 +51,9 @@ public class PL0VisitorImpl extends PL0BaseVisitor<String> {
     public String visitAssignmentStatement(PL0Parser.AssignmentStatementContext ctx) {
         //通过 visit(ctx.identifier()) 访问赋值语句中的标识符，获取标识符的值，并将其存储在 id 变量中。
         String id = visit(ctx.identifier());
+        if (symbolTable.get(id) == "const") {
+            System.out.println(id + "为常量");
+        }
         //通过 visit(ctx.expression()) 访问赋值语句中的表达式，获取表达式的值，并将其存储在 expr 变量中。
         String expr = visit(ctx.expression());
         //调用 getMidCodeCounter() 方法生成一个新的中间代码编号 cnt，并将 id + " := " + expr 存储在 midCodes 映射表中，表示赋值语句的中间代码。
@@ -105,51 +108,50 @@ public class PL0VisitorImpl extends PL0BaseVisitor<String> {
         return null;
     }
 
-//对表达式的访问，并生成相应的中间代码。
-@Override
-public String visitExpression(PL0Parser.ExpressionContext ctx) {
-    var expr = ctx.expression();
-    String op;
-    var minus = ctx.MINUS();
-    if (expr != null) {
-        // 表达式形式为 expression (PLUS|MINUS) term
-        // 判断符号
-        op = (minus != null) ? "-" : "+";
+    //对表达式的访问，并生成相应的中间代码。
+    @Override
+    public String visitExpression(PL0Parser.ExpressionContext ctx) {
+        var expr = ctx.expression();
+        String op;
+        var minus = ctx.MINUS();
+        if (expr != null) {
+            // 表达式形式为 expression (PLUS|MINUS) term
+            // 判断符号
+            op = (minus != null) ? "-" : "+";
 
-        // 递归调用，访问左侧表达式
-        String left = visit(expr);
+            // 递归调用，访问左侧表达式
+            String left = visit(expr);
 
-        // 访问右侧term表达式
-        String right = visit(ctx.term());
+            // 访问右侧term表达式
+            String right = visit(ctx.term());
 
-        // 生成新的临时变量名
-        String res = newTempVar();
-
-        // 生成中间代码：res = left op right
-        midCodes.put(getMidCodeCounter(), res + " = " + left + " " + op + " " + right);
-
-        // 返回临时变量名
-        return res;
-    } else {
-        // 表达式形式为 (PLUS | MINUS)? term
-        String term = visit(ctx.term());
-        op = (minus != null) ? minus.getText() : (ctx.PLUS() != null ? ctx.PLUS().getText() : "");
-
-        if (!op.isEmpty()) {
-            // 存在符号操作，生成新的临时变量名
+            // 生成新的临时变量名
             String res = newTempVar();
 
-            // 生成中间代码：res := op term
-            midCodes.put(getMidCodeCounter(), res + " := " + left + " " + op + " " + right);
+            // 生成中间代码：res = left op right
+            midCodes.put(getMidCodeCounter(), res + " = " + left + " " + op + " " + right);
 
             // 返回临时变量名
             return res;
         } else {
-            // 没有符号操作，直接返回term
-            return term;
+            // 表达式形式为 (PLUS | MINUS)? term
+            String term = visit(ctx.term());
+            op = (minus != null) ? minus.getText() : (ctx.PLUS() != null ? ctx.PLUS().getText() : "");
+
+            if (!op.isEmpty()) {
+                // 存在符号操作，生成新的临时变量名
+                String res = newTempVar();
+
+                midCodes.put(getMidCodeCounter(), res + " = " + op + " " + term);
+
+                // 返回临时变量名
+                return res;
+            } else {
+                // 没有符号操作，直接返回term
+                return term;
+            }
         }
     }
-}
 
 //对项的访问，并生成相应的中间代码
     @Override
@@ -266,7 +268,7 @@ public String visitExpression(PL0Parser.ExpressionContext ctx) {
         return String.valueOf(next);
     }
 
-//PL/0 语言中的循环语句的代码生成
+    //PL/0 语言中的循环语句的代码生成
     @Override
     public String visitLoopStatement(PL0Parser.LoopStatementContext ctx) {
         // 获取入口地址

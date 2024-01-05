@@ -1,14 +1,11 @@
-PROGRAM xxx
-CONST a := 23, b:= 9;
-VAR set, abc;
+PROGRAM add
+CONST a:=23;
+VAR x,y;
 BEGIN
-	set:=1;
-	a := (23 + 1) * set;
-	WHILE a > 23 DO
-	BEGIN
-		a:=a-23;
-		IF a>23 THEN IF b > 23 + 2 THEN set:=23
-	END;
-	set := 23 * a / b;
-	abc := 23
+x:=1;#
+y:=2;
+set := 23;
+WHILE x<5 DO x:=x+1;
+ IF y>0 THEN y:=y-1;
+y:=y+x
 END
