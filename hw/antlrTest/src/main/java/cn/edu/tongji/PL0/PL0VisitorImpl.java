@@ -29,6 +29,9 @@ public class PL0VisitorImpl extends PL0BaseVisitor<String> {
     //符号表，用于存储变量和常量的名称和值。
     private final Map<String, String> symbolTable = new HashMap<>();
 
+    // 记录变量是否已经赋值
+    private final Set<String> assignedId = new HashSet<>();
+
     //生成一个新的临时变量名，格式为 t0、t1、t2 等。
     //生成一个新的中间代码、条件标签或跳转标签。
     private String newTempVar() {
@@ -58,6 +61,9 @@ public class PL0VisitorImpl extends PL0BaseVisitor<String> {
             System.out.println(id + "为常量");
             System.exit(1);
         }
+        // 记录赋值
+        assignedId.add(id);
+
         //通过 visit(ctx.expression()) 访问赋值语句中的表达式，获取表达式的值，并将其存储在 expr 变量中。
         String expr = visit(ctx.expression());
         if (expr == null) {
@@ -86,6 +92,8 @@ public class PL0VisitorImpl extends PL0BaseVisitor<String> {
             // 如果不存在，则将其添加到符号表中，值为 CONST
             symbolTable.put(id, CONST);
         }
+        // 记录已经赋值
+        assignedId.add(id);
         // 获取常量定义中无符号整数的文本值
         String uInt = ctx.unsignedInteger().getText();
         // 调用 getMidCodeCounter() 方法生成一个新的中间代码编号 cnt，
@@ -211,7 +219,12 @@ public class PL0VisitorImpl extends PL0BaseVisitor<String> {
             return ctx.getText();
         }
         // 返回标识符的值
-        return visit(ctx.identifier());
+        String id = visit(ctx.identifier());
+        if (!assignedId.contains(id)) {
+            System.out.println(id + "未赋值");
+            System.exit(1);
+        }
+        return id;
     }
 
 
@@ -454,6 +467,7 @@ public class PL0VisitorImpl extends PL0BaseVisitor<String> {
 
     public void output() {
         try (BufferedWriter writer = Files.newBufferedWriter(Paths.get(FILE_PATH))) {
+            System.out.println("中间代码：");
             for (Map.Entry<Integer, String> entry : midCodes.entrySet()) {
                 String line = entry.getKey() + ": " + entry.getValue();
                 System.out.println(line);
@@ -464,5 +478,9 @@ public class PL0VisitorImpl extends PL0BaseVisitor<String> {
             throw new RuntimeException("Error writing to file", e);
         }
 
+        System.out.println("符号表：");
+        for (Map.Entry<String, String > entry: symbolTable.entrySet()) {
+            System.out.println(entry.getKey() + ": " + entry.getValue());
+        }
     }
 }
