@@ -9,11 +9,13 @@ true_lists = {}
 false_lists = {}
 next_lists = {}
 existing_symbols = {}
+assigned_id = set()
+line = 0
 
 
 def reset():
     global temp_var_counter, mid_code_counter, condition_counter, next_counter, mid_codes, true_lists, false_lists,\
-        next_lists, existing_symbols
+        next_lists, existing_symbols, assigned_id, line
 
     temp_var_counter = TempVarCounter()
     mid_code_counter = MidCodeCounter(100)
@@ -24,6 +26,18 @@ def reset():
     false_lists = {}
     next_lists = {}
     existing_symbols = {}
+    assigned_id = set()
+    line = 0
+
+
+def set_line(new_line):
+    global line
+
+    line = new_line
+
+
+def print_existing_symbols():
+    print(existing_symbols)
 
 
 def get_mid_codes():
@@ -36,7 +50,7 @@ def get_mid_codes():
 
 
 def error(message):
-    raise ValueError(f"Intermediate error: {message}")
+    raise ValueError(f"Intermediate error: {message} at line {line}")
 
 
 def visit_constant_definition(node, word_record):
@@ -47,6 +61,7 @@ def visit_constant_definition(node, word_record):
         existing_symbols[node[0][0]] = "CONST"
     cnt = mid_code_counter.get_mid_code_counter()
     mid_codes[cnt] = f'{node[0][0]} := {node[2][0]}'
+    assigned_id.add(node[0][0])
 
 
 def visit_variable_declaration(node, word_record):
@@ -156,6 +171,7 @@ def visit_assignment_statement(node, word_record):
 
     word_record.pop()
     word_record.append(next_cnt)
+    assigned_id.add(node[0])
 
 
 def visit_expression_plus_term(node, word_record):
@@ -228,6 +244,8 @@ def visit_factor_i(node, word_record):
     # Factor -> Identifier
     if node[0] not in existing_symbols:
         error(f'undeclared symbol: \"{node[0]}\"')
+    elif node[0] not in assigned_id:
+        error(f'unassigned symbol: \"{node[0]}\"')
 
     word_record.pop()
     word_record.append(node[0])

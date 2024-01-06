@@ -1,5 +1,7 @@
 import pickle
 import re
+
+import intermediate
 from Production import grammar
 from intermediate import visit_functions
 
@@ -16,7 +18,8 @@ class GrammarAnalyzer:
     def error(self, message):
         raise SyntaxError(f"Grammar Error: {message}")
 
-    def reduce_production(self, num):
+    def reduce_production(self, num, line):
+        intermediate.set_line(line)
         production = grammar[num]
         left = production.left
         reduce_length = len(production.right)
@@ -59,7 +62,7 @@ class GrammarAnalyzer:
             return True, True, None
         # 规约
         elif action.startswith('r'):
-            self.reduce_production(num)
+            self.reduce_production(num, line)
             return True, False, num
         # 接受
         elif action.startswith('acc'):

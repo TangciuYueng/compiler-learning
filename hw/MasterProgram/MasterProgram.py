@@ -1,4 +1,6 @@
 import sys
+
+import intermediate
 from intermediate import reset, get_mid_codes
 from PL0_Compiler import Ui_MainWindow
 from LexicalAnalyzer import LexicalAnalyzer
@@ -95,6 +97,8 @@ def pl0_compile():
     grammar_analyzer = GrammarAnalyzer(grammar_file_path)
 
     while lexical_analyzer.get_index() < len(input_program):
+        intermediate.print_existing_symbols()
+
         try:
             word, element, if_next_line = \
                 lexical_analyzer.analyze_once(input_program[lexical_analyzer.get_index()], line)
